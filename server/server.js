@@ -15,6 +15,7 @@ if (result.error) {
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const resumeRoutes = require('./routes/resumeRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,6 +31,7 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/resume', resumeRoutes);
 
 // Connect to database
 connectDB();
