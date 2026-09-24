@@ -31,9 +31,17 @@ const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter,
-});
+}).single('resume');
 
-// We accept a single file with the field name 'resume'
-const uploadMiddleware = upload.single('resume');
+const uploadMiddleware = (req, res, next) => {
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ message: `Upload error: ${err.message}` });
+    } else if (err) {
+      return res.status(400).json({ message: err.message });
+    }
+    next();
+  });
+};
 
 module.exports = uploadMiddleware;
