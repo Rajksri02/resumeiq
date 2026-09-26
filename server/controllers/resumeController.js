@@ -1,7 +1,9 @@
 const fs = require('fs');
 const { extractTextFromPDF } = require('../utils/pdfParser');
+const { analyzeResumeText } = require('../utils/analyzeResume');
+const Resume = require('../models/Resume');
 
-// @desc    Upload resume and extract text
+// @desc    Upload resume, extract text, and analyze with Gemini
 // @route   POST /api/resume/upload
 // @access  Private
 const uploadResume = async (req, res) => {
@@ -10,21 +12,29 @@ const uploadResume = async (req, res) => {
   }
 
   const filePath = req.file.path;
+  const { jobDescription } = req.body;
 
   try {
     const extractedText = await extractTextFromPDF(filePath);
 
-    // TODO: In the next section, we will pass `extractedText` to the AI logic.
-    // For now, return a preview to verify it works.
+    // Analyze with Gemini
+    const analysisResult = await analyzeResumeText(extractedText, jobDescription);
 
-    res.status(200).json({
-      message: 'Resume uploaded and parsed successfully',
-      textLength: extractedText.length,
-      preview: extractedText.substring(0, 300) + (extractedText.length > 300 ? '...' : ''),
+    // Save to database
+    const resume = new Resume({
+      user: req.user.id,
+      fileName: req.file.originalname,
+      extractedText,
+      jobDescription,
+      analysis: analysisResult
     });
+
+    const savedResume = await resume.save();
+
+    res.status(201).json(savedResume);
   } catch (error) {
-    console.error('Error parsing PDF:', error);
-    res.status(400).json({ message: error.message || 'Error processing the uploaded resume' });
+    console.error('Error processing resume:', error);
+    res.status(500).json({ message: error.message || 'Error processing the uploaded resume' });
   } finally {
     // Always clean up the temporary file, regardless of success or failure
     if (fs.existsSync(filePath)) {
@@ -33,6 +43,70 @@ const uploadResume = async (req, res) => {
   }
 };
 
+// @desc    Get user's resume history
+// @route   GET /api/resume/history
+// @access  Private
+const getResumeHistory = async (req, res) => {
+  try {
+    // Exclude extractedText to keep payload light
+    const history = await Resume.find({ user: req.user.id })
+      .select('-extractedText')
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json(history);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to retrieve history' });
+  }
+};
+
+// @desc    Get single resume detail
+// @route   GET /api/resume/:id
+// @access  Private
+const getResumeById = async (req, res) => {
+  try {
+    const resume = await Resume.findById(req.params.id);
+    
+    if (!resume) {
+      return res.status(404).json({ message: 'Resume not found' });
+    }
+    
+    // Check ownership
+    if (resume.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to access this resume' });
+    }
+    
+    res.status(200).json(resume);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to retrieve resume' });
+  }
+};
+
+// @desc    Delete a resume
+// @route   DELETE /api/resume/:id
+// @access  Private
+const deleteResume = async (req, res) => {
+  try {
+    const resume = await Resume.findById(req.params.id);
+    
+    if (!resume) {
+      return res.status(404).json({ message: 'Resume not found' });
+    }
+    
+    // Check ownership
+    if (resume.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to delete this resume' });
+    }
+    
+    await resume.deleteOne();
+    res.status(200).json({ message: 'Resume deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete resume' });
+  }
+};
+
 module.exports = {
   uploadResume,
+  getResumeHistory,
+  getResumeById,
+  deleteResume
 };
