@@ -17,6 +17,12 @@ const uploadResume = async (req, res) => {
   try {
     const extractedText = await extractTextFromPDF(filePath);
 
+    if (!extractedText || extractedText.trim().length < 50) {
+      return res.status(400).json({ 
+        message: "Couldn't extract readable text from this PDF — it may be a scanned image or too short." 
+      });
+    }
+
     // Analyze with Gemini
     const analysisResult = await analyzeResumeText(extractedText, jobDescription);
 

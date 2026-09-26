@@ -63,20 +63,42 @@ const analyzeResumeText = async (resumeText, jobDescription = null, isRetry = fa
     prompt += `\n\nIMPORTANT: Your previous response was not valid JSON. Please ensure your response is STRICTLY valid JSON with no markdown fences, comments, or extra text.`;
   }
 
+  let result;
   try {
-    const result = await model.generateContent(prompt);
+    result = await model.generateContent(prompt);
+  } catch (apiError) {
+    throw new Error(`Gemini API request failed: ${apiError.message}`);
+  }
+
+  try {
     let textResult = result.response.text();
     
-    // Strip accidental markdown code fences if present
-    textResult = textResult.replace(/^```(json)?/i, '').replace(/```$/i, '').trim();
+    // Trim first, then strip accidental markdown code fences if present, then trim again
+    textResult = textResult.trim().replace(/^```(json)?/i, '').replace(/```$/i, '').trim();
 
-    return JSON.parse(textResult);
-  } catch (error) {
+    const parsed = JSON.parse(textResult);
+
+    // Validate shape
+    if (typeof parsed.atsScore !== 'number' || parsed.atsScore < 0 || parsed.atsScore > 100) throw new Error("Invalid atsScore");
+    if (!Array.isArray(parsed.strengths)) throw new Error("strengths must be an array");
+    if (!Array.isArray(parsed.weaknesses)) throw new Error("weaknesses must be an array");
+    if (!Array.isArray(parsed.matchedSkills)) throw new Error("matchedSkills must be an array");
+    if (!Array.isArray(parsed.missingSkills)) throw new Error("missingSkills must be an array");
+    if (!Array.isArray(parsed.suggestions)) throw new Error("suggestions must be an array");
+    if (!parsed.sectionFeedback || typeof parsed.sectionFeedback !== 'object') throw new Error("sectionFeedback must be an object");
+    
+    const requiredKeys = ['summary', 'experience', 'education', 'skills', 'formatting'];
+    for (const key of requiredKeys) {
+      if (typeof parsed.sectionFeedback[key] !== 'string') throw new Error(`sectionFeedback.${key} must be a string`);
+    }
+
+    return parsed;
+  } catch (parseOrValidationError) {
     if (!isRetry) {
-      console.warn("Gemini returned malformed JSON or failed, retrying once...");
+      console.warn(`Gemini JSON parse or validation failed (${parseOrValidationError.message}), retrying once...`);
       return await analyzeResumeText(resumeText, jobDescription, true);
     } else {
-      throw new Error("Failed to parse Gemini analysis as JSON after retry.");
+      throw new Error("Failed to parse Gemini analysis as valid JSON after retry.");
     }
   }
 };
