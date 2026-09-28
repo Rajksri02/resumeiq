@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
     
     try {
       const res = await axios.get('/auth/me');
-      setUser(res.data);
+      setUser(res.data.user);
     } catch (error) {
       console.error('Error loading user', error);
       logout();
@@ -41,14 +41,14 @@ export const AuthProvider = ({ children }) => {
     const res = await axios.post('/auth/login', { email, password });
     localStorage.setItem('token', res.data.token);
     setToken(res.data.token);
-    setUser(res.data);
+    setUser(res.data.user);
   };
 
   const register = async (name, email, password) => {
     const res = await axios.post('/auth/register', { name, email, password });
     localStorage.setItem('token', res.data.token);
     setToken(res.data.token);
-    setUser(res.data);
+    setUser(res.data.user);
   };
 
   const logout = () => {
