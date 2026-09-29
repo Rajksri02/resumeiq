@@ -19,7 +19,7 @@ const Analysis = () => {
     const fetchAnalysis = async () => {
       try {
         const res = await axios.get(`/resume/${id}`);
-        setAnalysis(res.data.data);
+        setAnalysis(res.data);
       } catch (err) {
         console.error(err);
         setError('Failed to load analysis. It may have been deleted or you do not have permission.');
@@ -71,7 +71,7 @@ const Analysis = () => {
     );
   }
 
-  const result = analysis.analysisResult;
+  const result = analysis.analysis || {};
   const hasSkillsData = result.matchedSkills?.length > 0 || result.missingSkills?.length > 0;
 
   return (
@@ -90,7 +90,7 @@ const Analysis = () => {
               </button>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 truncate max-w-[200px] sm:max-w-md md:max-w-lg lg:max-w-xl">
-                  {analysis.filename}
+                  {analysis.fileName}
                 </h1>
                 <p className="text-sm text-gray-500 font-medium">
                   Analyzed on {new Date(analysis.createdAt).toLocaleDateString(undefined, {
@@ -233,7 +233,7 @@ const Analysis = () => {
             <div className="text-center">
               <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Analysis</h3>
               <p className="text-sm text-gray-500 mb-6 px-2">
-                Are you sure you want to delete the analysis for <span className="font-medium text-gray-700">"{analysis.filename}"</span>? This action cannot be undone.
+                Are you sure you want to delete the analysis for <span className="font-medium text-gray-700">"{analysis.fileName}"</span>? This action cannot be undone.
               </p>
             </div>
             <div className="flex justify-center space-x-3 sm:space-x-4">
