@@ -79,7 +79,7 @@ const Upload = () => {
       });
       
       // Navigate to analysis page on success
-      navigate(`/analysis/${res.data.data._id}`);
+      navigate(`/analysis/${res.data._id}`);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'An error occurred during analysis. Make sure your PDF is text-based and not a scanned image.');
