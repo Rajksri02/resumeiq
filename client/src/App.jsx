@@ -7,6 +7,8 @@ import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 const RootRedirect = () => {
   const { user, loading } = useAuth();
   
@@ -17,39 +19,41 @@ const RootRedirect = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/upload" 
-            element={
-              <ProtectedRoute>
-                <Upload />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/analysis/:id" 
-            element={
-              <ProtectedRoute>
-                <Analysis />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/" element={<RootRedirect />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/upload" 
+              element={
+                <ProtectedRoute>
+                  <Upload />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/analysis/:id" 
+              element={
+                <ProtectedRoute>
+                  <Analysis />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/" element={<RootRedirect />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
