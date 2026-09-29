@@ -15,7 +15,8 @@ const Dashboard = () => {
     const fetchHistory = async () => {
       try {
         const res = await axios.get('/resume/history');
-        setHistory(res.data.data);
+        // Ensure we always set an array, even if res.data.data is undefined
+        setHistory(res.data?.data || []);
       } catch (err) {
         console.error('Error fetching history:', err);
         setError('Failed to load past analyses.');
