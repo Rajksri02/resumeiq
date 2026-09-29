@@ -15,8 +15,8 @@ const Dashboard = () => {
     const fetchHistory = async () => {
       try {
         const res = await axios.get('/resume/history');
-        // Ensure we always set an array, even if res.data.data is undefined
-        setHistory(res.data?.data || []);
+        // Direct assignment, res.data is the array
+        setHistory(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error('Error fetching history:', err);
         setError('Failed to load past analyses.');
@@ -136,8 +136,8 @@ const Dashboard = () => {
                         <FileText className="w-6 h-6" />
                       </div>
                       <div className="min-w-0 truncate">
-                        <h3 className="text-sm font-bold text-gray-900 truncate" title={item.filename}>
-                          {item.filename}
+                        <h3 className="text-sm font-bold text-gray-900 truncate" title={item.fileName}>
+                          {item.fileName}
                         </h3>
                         <p className="text-xs text-gray-500 mt-0.5">
                           {new Date(item.createdAt).toLocaleDateString(undefined, { 
@@ -151,8 +151,8 @@ const Dashboard = () => {
                   <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
                     <div className="flex items-center space-x-2.5">
                       <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">Score</span>
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getScoreColor(item.analysisResult.atsScore)}`}>
-                        {item.analysisResult.atsScore}
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getScoreColor(item.analysis?.atsScore)}`}>
+                        {item.analysis?.atsScore}
                       </span>
                     </div>
                     <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
