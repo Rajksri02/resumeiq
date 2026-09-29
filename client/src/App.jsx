@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Upload from './pages/Upload';
+import Analysis from './pages/Analysis';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const RootRedirect = () => {
@@ -25,6 +27,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/upload" 
+            element={
+              <ProtectedRoute>
+                <Upload />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/analysis/:id" 
+            element={
+              <ProtectedRoute>
+                <Analysis />
               </ProtectedRoute>
             } 
           />
