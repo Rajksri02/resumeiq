@@ -2,10 +2,10 @@ const SkillBadge = ({ skill, type }) => {
   const isMatch = type === 'match';
   return (
     <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+      className={`inline-flex items-center px-3 py-1.5 text-xs font-bold uppercase tracking-wider font-sans border transition-colors
         ${isMatch 
-          ? 'bg-green-100 text-green-800 border border-green-200' 
-          : 'bg-red-100 text-red-800 border border-red-200'
+          ? 'bg-brand-emerald/10 text-brand-emerald border-brand-emerald/20' 
+          : 'bg-brand-pearl text-brand-ink/70 border-gray-200'
         }
       `}
     >

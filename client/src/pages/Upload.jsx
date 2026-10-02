@@ -78,11 +78,10 @@ const Upload = () => {
         }
       });
       
-      // Navigate to analysis page on success
       navigate(`/analysis/${res.data._id}`);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'An error occurred during analysis. Make sure your PDF is text-based and not a scanned image.');
+      setError(err.response?.data?.message || 'An error occurred during analysis. Make sure your PDF is text-based.');
     } finally {
       setLoading(false);
     }
@@ -90,20 +89,20 @@ const Upload = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-xl shadow-lg flex flex-col items-center max-w-md w-full text-center">
+      <div className="min-h-screen bg-brand-pearl flex flex-col items-center justify-center p-4 font-sans text-brand-ink">
+        <div className="bg-brand-white p-12 border border-gray-200 flex flex-col items-center max-w-lg w-full text-center">
           <div className="relative mb-8 mt-4">
-            <div className="absolute inset-0 animate-ping rounded-full bg-blue-100"></div>
-            <div className="relative bg-blue-600 rounded-full p-5 text-white shadow-md">
-              <FileSearch size={48} className="animate-pulse" />
+            <div className="absolute inset-0 animate-ping bg-brand-pearl opacity-50"></div>
+            <div className="relative bg-brand-ink p-5 text-brand-white">
+              <FileSearch size={40} className="animate-pulse" />
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-3">Analyzing your resume...</h2>
-          <p className="text-gray-500 mb-2">
-            Our AI is reading your experience, calculating your ATS score, and generating feedback.
+          <h2 className="text-2xl font-display font-bold mb-4 tracking-tight">Auditing Resume Structure...</h2>
+          <p className="text-gray-500 mb-2 leading-relaxed">
+            Our engine is parsing your experience, extracting skills, and generating an objective ATS score.
           </p>
-          <p className="text-sm text-gray-400">
-            This usually takes 5-10 seconds.
+          <p className="text-xs text-gray-400 uppercase tracking-widest mt-6 font-medium">
+            Estimated time: 5-10s
           </p>
         </div>
       </div>
@@ -111,59 +110,59 @@ const Upload = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-8 sm:p-10">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">New Analysis</h1>
-            <p className="mt-3 text-sm text-gray-600">
-              Upload your resume and optional job description to get instant, AI-powered feedback.
+    <div className="min-h-screen bg-brand-pearl py-12 px-4 sm:px-6 lg:px-8 font-sans text-brand-ink">
+      <div className="max-w-3xl mx-auto bg-brand-white border border-gray-200 shadow-audit">
+        <div className="px-8 py-10 sm:p-14">
+          <div className="mb-10 text-left border-b border-gray-100 pb-8">
+            <h1 className="text-3xl font-display font-bold tracking-tight">New Analysis</h1>
+            <p className="mt-2 text-gray-600">
+              Submit your document for a structural audit and ATS compatibility check.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Resume (PDF only)
+              <label className="block text-sm font-bold mb-3 uppercase tracking-wider text-gray-500">
+                Resume Document (PDF)
               </label>
               
               {!file ? (
                 <div
-                  className={`mt-1 flex justify-center px-6 pt-10 pb-10 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
-                    ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'}`}
+                  className={`mt-1 flex justify-center px-6 pt-12 pb-12 border-2 border-dashed transition-colors cursor-pointer
+                    ${isDragActive ? 'border-brand-emerald bg-brand-pearl' : 'border-gray-300 hover:border-brand-ink hover:bg-brand-pearl'}`}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <div className="space-y-2 text-center">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                      <UploadCloud className="h-8 w-8 text-gray-500" />
+                  <div className="space-y-3 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center bg-gray-100">
+                      <UploadCloud className="h-6 w-6 text-gray-600" />
                     </div>
-                    <div className="flex text-sm text-gray-600 justify-center items-center mt-4">
-                      <span className="relative rounded-md font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                        Upload a file
+                    <div className="flex flex-col text-sm justify-center items-center mt-4">
+                      <span className="font-bold text-brand-ink focus-within:outline-none underline decoration-2 underline-offset-4 cursor-pointer hover:text-brand-emerald transition-colors">
+                        Click to upload
                       </span>
-                      <p className="pl-1">or drag and drop</p>
+                      <p className="pt-2 text-gray-500">or drag and drop your file here</p>
                     </div>
-                    <p className="text-xs text-gray-500">PDF up to 5MB</p>
+                    <p className="text-xs text-gray-400 font-medium">Maximum size: 5MB</p>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-between p-4 border rounded-xl bg-blue-50/50 border-blue-200 transition-all shadow-sm">
+                <div className="flex items-center justify-between p-5 border border-brand-emerald bg-brand-emerald/5 transition-all">
                   <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-blue-100/50 rounded-lg">
-                      <FileText className="h-7 w-7 text-blue-600" />
+                    <div className="p-2 bg-brand-emerald/10 text-brand-emerald">
+                      <FileText className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 truncate max-w-[200px] sm:max-w-xs">{file.name}</p>
-                      <p className="text-xs text-gray-500 font-medium">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                      <p className="text-sm font-bold text-brand-ink truncate max-w-[200px] sm:max-w-xs">{file.name}</p>
+                      <p className="text-xs text-gray-500 mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={removeFile}
-                    className="p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 focus:outline-none transition-colors"
+                    className="p-2 text-gray-400 hover:text-brand-coral transition-colors focus:outline-none"
                     title="Remove file"
                   >
                     <X className="h-5 w-5" />
@@ -181,29 +180,27 @@ const Upload = () => {
             </div>
 
             <div>
-              <label htmlFor="jobDescription" className="block text-sm font-medium text-gray-700 mb-2">
-                Job Description <span className="text-gray-400 font-normal">(Optional, but recommended)</span>
+              <label htmlFor="jobDescription" className="block text-sm font-bold mb-3 uppercase tracking-wider text-gray-500 flex items-center justify-between">
+                <span>Target Job Description</span>
+                <span className="text-gray-400 font-normal normal-case tracking-normal">Optional</span>
               </label>
               <textarea
                 id="jobDescription"
                 name="jobDescription"
-                rows={5}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl border p-4 transition-colors resize-none"
-                placeholder="Paste the job description here to see how well your resume matches..."
+                rows={6}
+                className="block w-full text-sm border-gray-300 border p-5 transition-colors focus:border-brand-ink focus:ring-0 resize-none outline-none bg-brand-pearl/30"
+                placeholder="Paste the job description here to audit your alignment with the role's specific requirements..."
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
               />
             </div>
 
             {error && (
-              <div className="rounded-xl bg-red-50 p-4 border border-red-100">
+              <div className="bg-brand-coral/10 p-4 border-l-4 border-brand-coral">
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 mt-0.5">
-                    <X className="h-5 w-5 text-red-500" aria-hidden="true" />
-                  </div>
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">Upload failed</h3>
-                    <div className="mt-1 text-sm text-red-700">
+                    <h3 className="text-sm font-bold text-brand-coral">Upload failed</h3>
+                    <div className="mt-1 text-sm text-brand-ink/80">
                       <p>{error}</p>
                     </div>
                   </div>
@@ -211,22 +208,22 @@ const Upload = () => {
               </div>
             )}
 
-            <div className="pt-6 flex justify-end space-x-3 border-t border-gray-100">
+            <div className="pt-8 flex justify-end space-x-4">
               <button
                 type="button"
                 onClick={() => navigate('/dashboard')}
-                className="bg-white py-2.5 px-5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className="bg-brand-white py-3 px-6 border border-gray-300 text-sm font-bold text-brand-ink hover:bg-gray-50 focus:outline-none transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!file || loading}
-                className={`inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
+                className={`inline-flex justify-center py-3 px-8 border border-transparent text-sm font-bold text-brand-white bg-brand-ink hover:bg-black focus:outline-none transition-colors ${
                   (!file || loading) ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
-                Analyze Resume
+                Run Audit
               </button>
             </div>
           </form>
