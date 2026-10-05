@@ -22,61 +22,64 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-pearl flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans text-brand-ink">
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans text-slate-300">
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
-        <div className="bg-brand-ink p-2 mb-6">
-          <BarChart2 className="w-8 h-8 text-brand-white" />
+        <div className="bg-slate-800 border border-slate-700 p-3 mb-6 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+          <BarChart2 className="w-8 h-8 text-emerald-400" />
         </div>
-        <h2 className="text-center text-3xl font-display font-bold tracking-tight">ResumeIQ</h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Create a new account
+        <h2 className="text-center text-3xl font-bold tracking-tight text-white">ResumeIQ</h2>
+        <p className="mt-2 text-center text-sm text-slate-400">
+          Create an audit ledger account
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-brand-white py-10 px-8 border border-gray-200 shadow-audit sm:px-10">
+        <div className="bg-slate-800 py-10 px-8 border border-slate-700 shadow-xl sm:px-10 rounded-2xl">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-brand-coral/10 border-l-4 border-brand-coral text-brand-coral px-4 py-3 font-bold text-sm">
+              <div className="bg-red-500/10 border-l-4 border-red-500 text-red-400 px-4 py-3 font-bold text-sm rounded-r-md">
                 {error}
               </div>
             )}
             
             <div>
-              <label className="block text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Full Name</label>
+              <label className="block text-sm font-bold uppercase tracking-wider text-slate-400 mb-2 font-mono">Full Name</label>
               <div className="mt-1">
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 focus:outline-none focus:border-brand-ink focus:ring-0 sm:text-sm transition-colors bg-brand-pearl/30"
+                  className="appearance-none block w-full px-4 py-3 border border-slate-600 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent sm:text-sm transition-colors bg-slate-900 text-white rounded-xl"
+                  placeholder="Jane Doe"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Email address</label>
+              <label className="block text-sm font-bold uppercase tracking-wider text-slate-400 mb-2 font-mono">Email address</label>
               <div className="mt-1">
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 focus:outline-none focus:border-brand-ink focus:ring-0 sm:text-sm transition-colors bg-brand-pearl/30"
+                  className="appearance-none block w-full px-4 py-3 border border-slate-600 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent sm:text-sm transition-colors bg-slate-900 text-white rounded-xl"
+                  placeholder="jane@example.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Password</label>
+              <label className="block text-sm font-bold uppercase tracking-wider text-slate-400 mb-2 font-mono">Password</label>
               <div className="mt-1">
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 focus:outline-none focus:border-brand-ink focus:ring-0 sm:text-sm transition-colors bg-brand-pearl/30"
+                  className="appearance-none block w-full px-4 py-3 border border-slate-600 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent sm:text-sm transition-colors bg-slate-900 text-white rounded-xl"
+                  placeholder="••••••••"
                 />
               </div>
             </div>
@@ -84,15 +87,15 @@ const Register = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold text-brand-white bg-brand-ink hover:bg-black focus:outline-none transition-colors"
+                className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800 transition-colors rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.2)]"
               >
-                REGISTER
+                [ REGISTER ]
               </button>
             </div>
           </form>
           
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <Link to="/login" className="text-sm font-bold text-gray-500 hover:text-brand-ink transition-colors uppercase tracking-wider">
+          <div className="mt-8 pt-6 border-t border-slate-700 text-center">
+            <Link to="/login" className="text-sm font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:underline">
               Already have an account? Sign in.
             </Link>
           </div>
