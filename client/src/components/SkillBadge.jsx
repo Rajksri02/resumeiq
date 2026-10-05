@@ -2,14 +2,14 @@ const SkillBadge = ({ skill, type }) => {
   const isMatch = type === 'match';
   return (
     <span
-      className={`inline-flex items-center px-3 py-1.5 text-xs font-bold uppercase tracking-wider font-sans border transition-colors
+      className={`inline-flex items-center px-2.5 py-1 text-xs font-mono font-bold uppercase tracking-wider border rounded-md transition-colors
         ${isMatch 
-          ? 'bg-brand-emerald/10 text-brand-emerald border-brand-emerald/20' 
-          : 'bg-brand-pearl text-brand-ink/70 border-gray-200'
+          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+          : 'bg-slate-900 text-slate-400 border-slate-700'
         }
       `}
     >
-      {skill}
+      {isMatch ? '> ' : '- '}{skill}
     </span>
   );
 };
