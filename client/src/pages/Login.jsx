@@ -91,7 +91,10 @@ const Login = () => {
             </div>
           </form>
           
-          <div className="mt-8 pt-6 border-t border-slate-700 text-center">
+          <div className="mt-8 pt-6 border-t border-slate-700 flex justify-between text-center">
+            <Link to="/forgot-password" className="text-sm font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:underline">
+              Forgot Password?
+            </Link>
             <Link to="/register" className="text-sm font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:underline">
               Create an account
             </Link>
