@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import axios from 'axios';
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -14,23 +16,17 @@ const ForgotPassword = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await axios.post('/auth/forgot-password', { email });
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage('If that email exists, a reset link has been sent.');
-      } else {
-        setError(data.message || 'Something went wrong');
       }
     } catch (err) {
-      setError('Could not connect to the server. Please try again later.');
+      if (!err.response) {
+        setError('Could not connect to the server. Please try again later.');
+      } else {
+        setError(err.response.data?.message || 'Something went wrong');
+      }
     } finally {
       setIsLoading(false);
     }

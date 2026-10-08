@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
+import axios from 'axios';
+
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -22,26 +24,20 @@ const ResetPassword = () => {
     setError('');
 
     try {
-      const response = await fetch(`/api/auth/reset-password/${token}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-      });
+      const response = await axios.post(`/auth/reset-password/${token}`, { password });
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (response.status === 200) {
         setMessage('Password reset successful. Redirecting to login...');
         setTimeout(() => {
           navigate('/login');
         }, 3000);
-      } else {
-        setError(data.message || 'Something went wrong');
       }
     } catch (err) {
-      setError('Could not connect to the server. Please try again later.');
+      if (!err.response) {
+        setError('Could not connect to the server. Please try again later.');
+      } else {
+        setError(err.response.data?.message || 'Something went wrong');
+      }
     } finally {
       setIsLoading(false);
     }
