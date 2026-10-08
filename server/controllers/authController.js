@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../models/User');
 
 const generateToken = (id) => {
@@ -111,7 +112,6 @@ const getMe = async (req, res) => {
   }
 };
 
-const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
 
 // @desc    Forgot password
@@ -151,9 +151,13 @@ const forgotPassword = async (req, res) => {
       message,
     }).catch(async (error) => {
       console.error(error);
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpire = undefined;
-      await user.save({ validateBeforeSave: false });
+      try {
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        await user.save({ validateBeforeSave: false });
+      } catch (saveError) {
+        console.error('Failed to clear reset token after email error:', saveError);
+      }
     });
   } catch (error) {
     console.error(error);
@@ -181,8 +185,8 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Invalid token' });
     }
 
-    if (req.body.password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    if (typeof req.body.password !== 'string' || req.body.password.length < 6) {
+      return res.status(400).json({ message: 'Password must be a string of at least 6 characters' });
     }
 
     // Set new password
@@ -193,12 +197,7 @@ const resetPassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      token: generateToken(user._id),
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      }
+      message: 'Password reset successful',
     });
   } catch (error) {
     console.error(error);
