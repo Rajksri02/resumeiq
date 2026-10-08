@@ -120,8 +120,12 @@ const sendEmail = require('../utils/sendEmail');
 const forgotPassword = async (req, res) => {
   const genericResponse = { success: true, data: 'If that email exists, a reset link has been sent' };
 
+  if (typeof req.body.email !== 'string') {
+    return res.status(200).json(genericResponse);
+  }
+
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email.trim().toLowerCase() });
 
     if (!user) {
       return res.status(200).json(genericResponse);
@@ -135,25 +139,22 @@ const forgotPassword = async (req, res) => {
     // Create reset url
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please make a PUT request to: \n\n ${resetUrl}`;
+    const message = `You requested a password reset for your ResumeIQ account. Click this link to choose a new password (valid for 10 minutes): ${resetUrl}\nIf you didn't request this, you can ignore this email.`;
 
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: 'Password reset token',
-        message,
-      });
+    // Respond immediately to reduce timing attacks
+    res.status(200).json(genericResponse);
 
-      return res.status(200).json(genericResponse);
-    } catch (error) {
+    // Send email in background
+    sendEmail({
+      email: user.email,
+      subject: 'Password reset token',
+      message,
+    }).catch(async (error) => {
       console.error(error);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;
-
       await user.save({ validateBeforeSave: false });
-
-      return res.status(200).json(genericResponse);
-    }
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error during forgot password' });
