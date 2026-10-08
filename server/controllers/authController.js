@@ -118,11 +118,13 @@ const sendEmail = require('../utils/sendEmail');
 // @route   POST /api/auth/forgot-password
 // @access  Public
 const forgotPassword = async (req, res) => {
+  const genericResponse = { success: true, data: 'If that email exists, a reset link has been sent' };
+
   try {
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
-      return res.status(404).json({ message: 'There is no user with that email' });
+      return res.status(200).json(genericResponse);
     }
 
     // Get reset token
@@ -142,7 +144,7 @@ const forgotPassword = async (req, res) => {
         message,
       });
 
-      res.status(200).json({ success: true, data: 'Email sent' });
+      return res.status(200).json(genericResponse);
     } catch (error) {
       console.error(error);
       user.resetPasswordToken = undefined;
@@ -150,7 +152,7 @@ const forgotPassword = async (req, res) => {
 
       await user.save({ validateBeforeSave: false });
 
-      return res.status(500).json({ message: 'Email could not be sent' });
+      return res.status(200).json(genericResponse);
     }
   } catch (error) {
     console.error(error);
