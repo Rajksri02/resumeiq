@@ -70,19 +70,17 @@ const getResumeHistory = async (req, res) => {
 // @access  Private
 const getResumeById = async (req, res) => {
   try {
-    const resume = await Resume.findById(req.params.id);
+    const resume = await Resume.findOne({ _id: req.params.id, user: req.user.id });
     
     if (!resume) {
       return res.status(404).json({ message: 'Resume not found' });
     }
     
-    // Check ownership
-    if (resume.user.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to access this resume' });
-    }
-    
     res.status(200).json(resume);
   } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(404).json({ message: 'Resume not found' });
+    }
     res.status(500).json({ message: 'Failed to retrieve resume' });
   }
 };
@@ -92,20 +90,18 @@ const getResumeById = async (req, res) => {
 // @access  Private
 const deleteResume = async (req, res) => {
   try {
-    const resume = await Resume.findById(req.params.id);
+    const resume = await Resume.findOne({ _id: req.params.id, user: req.user.id });
     
     if (!resume) {
       return res.status(404).json({ message: 'Resume not found' });
     }
     
-    // Check ownership
-    if (resume.user.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized to delete this resume' });
-    }
-    
     await resume.deleteOne();
     res.status(200).json({ message: 'Resume deleted successfully' });
   } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(404).json({ message: 'Resume not found' });
+    }
     res.status(500).json({ message: 'Failed to delete resume' });
   }
 };
