@@ -7,6 +7,65 @@ const FALLBACK_MODEL = "gemini-2.5-flash";
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const handleGeminiError = (err, modelName) => {
+  const msg = (err?.message || '').toLowerCase();
+  console.error(`[Gemini API Error on ${modelName}]:`, err);
+
+  if (
+    msg.includes('429') ||
+    msg.includes('quota') ||
+    msg.includes('resource_exhausted') ||
+    msg.includes('too many requests') ||
+    err?.status === 429 ||
+    err?.statusCode === 429
+  ) {
+    const quotaError = new Error('The AI service is busy, try again in a minute');
+    quotaError.statusCode = 429;
+    quotaError.status = 429;
+    quotaError.code = 'QUOTA_EXCEEDED';
+    return quotaError;
+  }
+
+  if (
+    msg.includes('503') ||
+    msg.includes('service unavailable') ||
+    err?.status === 503 ||
+    err?.statusCode === 503
+  ) {
+    const serviceError = new Error('The AI service is busy, try again in a minute');
+    serviceError.statusCode = 503;
+    serviceError.status = 503;
+    serviceError.code = 'SERVICE_UNAVAILABLE';
+    return serviceError;
+  }
+
+  if (
+    msg.includes('api_key') ||
+    msg.includes('api key') ||
+    msg.includes('invalid api key') ||
+    msg.includes('permission_denied') ||
+    msg.includes('unauthorized') ||
+    err?.status === 401 ||
+    err?.status === 403
+  ) {
+    const authError = new Error('Analysis unavailable');
+    authError.statusCode = 503;
+    authError.status = 503;
+    authError.code = 'GEMINI_AUTH_ERROR';
+    return authError;
+  }
+
+  // Catch any other provider error leaking internal Google URLs
+  if (msg.includes('generativelanguage.googleapis.com') || msg.includes('google-generative-ai') || msg.includes('googlegenerativeai')) {
+    const genericAiError = new Error('Analysis unavailable');
+    genericAiError.statusCode = 500;
+    genericAiError.status = 500;
+    return genericAiError;
+  }
+
+  return err;
+};
+
 const modelWrapper = {
   generateContent: async (prompt) => {
     let currentModelName = PRIMARY_MODEL;
@@ -20,6 +79,17 @@ const modelWrapper = {
       const errorMessage = error.message.toLowerCase();
       
       let shouldFallback = false;
+
+      // Specific handling for Gemini 429 (quota / rate limit)
+      if (
+        errorMessage.includes('429') ||
+        errorMessage.includes('quota') ||
+        errorMessage.includes('resource_exhausted') ||
+        errorMessage.includes('too many requests')
+      ) {
+        console.error(`[Gemini API] Quota / rate limit exceeded (429) on model ${currentModelName}:`, error.message);
+        throw handleGeminiError(error, currentModelName);
+      }
 
       // Check for 503 / Service Unavailable errors
       if (errorMessage.includes('503') || errorMessage.includes('service unavailable')) {
@@ -44,8 +114,8 @@ const modelWrapper = {
         console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} failed (Not Found/Deprecated).`);
         shouldFallback = true;
       } else {
-        // If it's a different error (e.g., authentication), re-throw immediately
-        throw error;
+        // If it's a different error (e.g., authentication, invalid key), sanitize and re-throw
+        throw handleGeminiError(error, currentModelName);
       }
       
       if (shouldFallback) {
@@ -60,7 +130,7 @@ const modelWrapper = {
           return fallbackResponse;
         } catch (fallbackError) {
           console.error(`[Gemini API] Fallback model ${FALLBACK_MODEL} also failed:`, fallbackError.message);
-          throw fallbackError;
+          throw handleGeminiError(fallbackError, currentModelName);
         }
       }
     }

@@ -67,7 +67,7 @@ const analyzeResumeText = async (resumeText, jobDescription = null, isRetry = fa
   try {
     result = await model.generateContent(prompt);
   } catch (apiError) {
-    throw new Error(`Gemini API request failed: ${apiError.message}`);
+    throw apiError;
   }
 
   try {
