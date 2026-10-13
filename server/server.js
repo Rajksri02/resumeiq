@@ -29,9 +29,15 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/resume', resumeRoutes);
+
+// Error Handling Middleware
+app.use(notFound);
+app.use(errorHandler);
 
 // Connect to database
 connectDB();
