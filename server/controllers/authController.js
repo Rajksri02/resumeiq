@@ -17,17 +17,17 @@ const register = async (req, res) => {
 
     // Manual input validation
     if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Please provide name, email, and password' });
+      return res.status(400).json({ success: false, message: 'Please provide name, email, and password' });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
     }
 
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      return res.status(400).json({ message: 'Email is already in use' });
+      return res.status(400).json({ success: false, message: 'Email is already in use' });
     }
 
     const user = await User.create({
@@ -38,6 +38,7 @@ const register = async (req, res) => {
 
     if (user) {
       res.status(201).json({
+        success: true,
         token: generateToken(user._id),
         user: {
           id: user._id,
@@ -46,11 +47,11 @@ const register = async (req, res) => {
         }
       });
     } else {
-      res.status(400).json({ message: 'Invalid user data' });
+      res.status(400).json({ success: false, message: 'Invalid user data' });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error during registration' });
+    res.status(500).json({ success: false, message: 'Server error during registration' });
   }
 };
 
