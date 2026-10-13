@@ -6,9 +6,9 @@ const Resume = require('../models/Resume');
 // @desc    Upload resume, extract text, and analyze with Gemini
 // @route   POST /api/resume/upload
 // @access  Private
-const uploadResume = async (req, res) => {
+const uploadResume = async (req, res, next) => {
   if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded or invalid file format' });
+    return res.status(400).json({ success: false, message: 'No file uploaded or invalid file format' });
   }
 
   const filePath = req.file.path;
@@ -19,7 +19,8 @@ const uploadResume = async (req, res) => {
 
     if (!extractedText || extractedText.trim().length < 50) {
       return res.status(400).json({ 
-        message: "Couldn't extract readable text from this PDF — it may be a scanned image or too short." 
+        success: false,
+        message: "This PDF appears to be a scanned image. Please upload a text-based PDF." 
       });
     }
 
@@ -40,11 +41,61 @@ const uploadResume = async (req, res) => {
     res.status(201).json(savedResume);
   } catch (error) {
     console.error('Error processing resume:', error);
-    res.status(500).json({ message: error.message || 'Error processing the uploaded resume' });
+
+    let statusCode = error.statusCode || error.status || 500;
+    let message = error.message || 'Error processing the uploaded resume';
+
+    const lower = (message + ' ' + (error.stack || '')).toLowerCase();
+    if (
+      lower.includes('429') ||
+      lower.includes('quota') ||
+      lower.includes('resource_exhausted') ||
+      lower.includes('too many requests')
+    ) {
+      statusCode = 429;
+      message = 'The AI service is busy, try again in a minute';
+    } else if (
+      lower.includes('503') ||
+      lower.includes('service unavailable')
+    ) {
+      statusCode = 503;
+      message = 'The AI service is busy, try again in a minute';
+    } else if (
+      lower.includes('api_key_invalid') ||
+      lower.includes('api key not valid') ||
+      lower.includes('invalid api key') ||
+      lower.includes('permission_denied')
+    ) {
+      statusCode = 503;
+      message = 'Analysis unavailable';
+    } else if (
+      lower.includes('generativelanguage.googleapis.com') ||
+      lower.includes('google-generative-ai') ||
+      lower.includes('googlegenerativeai')
+    ) {
+      statusCode = 500;
+      message = 'Analysis unavailable';
+    } else if (
+      lower.includes('scanned_pdf_no_text') ||
+      lower.includes('scanned image')
+    ) {
+      statusCode = 400;
+      message = 'This PDF appears to be a scanned image. Please upload a text-based PDF.';
+    }
+
+    res.status(statusCode).json({
+      success: false,
+      message,
+      ...(process.env.NODE_ENV !== 'production' && error.stack ? { stack: error.stack } : {})
+    });
   } finally {
     // Always clean up the temporary file, regardless of success or failure
     if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+      try {
+        fs.unlinkSync(filePath);
+      } catch (unlinkErr) {
+        console.error('Error deleting temp file:', unlinkErr);
+      }
     }
   }
 };
@@ -61,7 +112,8 @@ const getResumeHistory = async (req, res) => {
     
     res.status(200).json(history);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to retrieve history' });
+    console.error('Error getting history:', error);
+    res.status(500).json({ success: false, message: 'Failed to retrieve history' });
   }
 };
 
@@ -73,15 +125,16 @@ const getResumeById = async (req, res) => {
     const resume = await Resume.findOne({ _id: req.params.id, user: req.user.id });
     
     if (!resume) {
-      return res.status(404).json({ message: 'Resume not found' });
+      return res.status(404).json({ success: false, message: 'Resume not found' });
     }
     
     res.status(200).json(resume);
   } catch (error) {
+    console.error('Error getting resume by id:', error);
     if (error.name === 'CastError') {
-      return res.status(404).json({ message: 'Resume not found' });
+      return res.status(404).json({ success: false, message: 'Resume not found' });
     }
-    res.status(500).json({ message: 'Failed to retrieve resume' });
+    res.status(500).json({ success: false, message: 'Failed to retrieve resume' });
   }
 };
 
@@ -93,16 +146,17 @@ const deleteResume = async (req, res) => {
     const resume = await Resume.findOne({ _id: req.params.id, user: req.user.id });
     
     if (!resume) {
-      return res.status(404).json({ message: 'Resume not found' });
+      return res.status(404).json({ success: false, message: 'Resume not found' });
     }
     
     await resume.deleteOne();
-    res.status(200).json({ message: 'Resume deleted successfully' });
+    res.status(200).json({ success: true, message: 'Resume deleted successfully' });
   } catch (error) {
+    console.error('Error deleting resume:', error);
     if (error.name === 'CastError') {
-      return res.status(404).json({ message: 'Resume not found' });
+      return res.status(404).json({ success: false, message: 'Resume not found' });
     }
-    res.status(500).json({ message: 'Failed to delete resume' });
+    res.status(500).json({ success: false, message: 'Failed to delete resume' });
   }
 };
 
