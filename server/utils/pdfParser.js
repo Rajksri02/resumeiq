@@ -16,9 +16,15 @@ const extractTextFromPDF = async (filePath) => {
     return text;
   } catch (error) {
     if (error.message === 'SCANNED_PDF_NO_TEXT') {
-      throw new Error('This PDF appears to be a scanned image. Please upload a text-based PDF.');
+      const scannedErr = new Error('This PDF appears to be a scanned image. Please upload a text-based PDF.');
+      scannedErr.statusCode = 400;
+      scannedErr.status = 400;
+      throw scannedErr;
     }
-    throw new Error('Failed to parse PDF file');
+    const parseErr = new Error('Failed to parse PDF file. Please ensure it is a valid, uncorrupted PDF.');
+    parseErr.statusCode = 400;
+    parseErr.status = 400;
+    throw parseErr;
   }
 };
 

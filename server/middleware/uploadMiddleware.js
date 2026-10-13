@@ -36,9 +36,21 @@ const upload = multer({
 const uploadMiddleware = (req, res, next) => {
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
-      return res.status(400).json({ message: `Upload error: ${err.message}` });
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: 'File size exceeds 5MB limit. Please upload a smaller PDF.'
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        message: `Upload error: ${err.message}`
+      });
     } else if (err) {
-      return res.status(400).json({ message: err.message });
+      return res.status(400).json({
+        success: false,
+        message: err.message || 'Only PDF files are allowed!'
+      });
     }
     next();
   });
