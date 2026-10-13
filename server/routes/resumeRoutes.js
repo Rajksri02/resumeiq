@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const { protect } = require('../middleware/authMiddleware');
 const uploadMiddleware = require('../middleware/uploadMiddleware');
 const { 
@@ -9,8 +10,21 @@ const {
   deleteResume 
 } = require('../controllers/resumeController');
 
-// Route uses auth protection and multer upload middleware
-router.post('/upload', protect, uploadMiddleware, uploadResume);
+// Rate limiting: 5 uploads per 10 minutes per authenticated user (falling back to IP)
+const uploadLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  keyGenerator: (req) => req.user?.id || req.user?._id?.toString() || req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Upload limit reached: maximum 5 uploads per 10 minutes. Please try again later.'
+  }
+});
+
+// Route uses auth protection, rate limiting, and multer upload middleware
+router.post('/upload', protect, uploadLimiter, uploadMiddleware, uploadResume);
 router.get('/history', protect, getResumeHistory);
 router.get('/:id', protect, getResumeById);
 router.delete('/:id', protect, deleteResume);
