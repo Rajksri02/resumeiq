@@ -64,13 +64,14 @@ const login = async (req, res) => {
 
     // Manual input validation
     if (!email || !password) {
-      return res.status(400).json({ message: 'Please provide email and password' });
+      return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
     const user = await User.findOne({ email });
 
     if (user && (await user.comparePassword(password))) {
       res.json({
+        success: true,
         token: generateToken(user._id),
         user: {
           id: user._id,
@@ -80,11 +81,11 @@ const login = async (req, res) => {
       });
     } else {
       // Generic error to prevent leaking whether email or password was wrong
-      res.status(401).json({ message: 'Invalid credentials' });
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({ success: false, message: 'Server error during login' });
   }
 };
 
@@ -97,6 +98,7 @@ const getMe = async (req, res) => {
 
     if (user) {
       res.json({
+        success: true,
         user: {
           id: user._id,
           name: user.name,
@@ -105,11 +107,11 @@ const getMe = async (req, res) => {
         }
       });
     } else {
-      res.status(404).json({ message: 'User not found' });
+      res.status(404).json({ success: false, message: 'User not found' });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error getting profile' });
+    res.status(500).json({ success: false, message: 'Server error getting profile' });
   }
 };
 
@@ -162,7 +164,7 @@ const forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error during forgot password' });
+    res.status(500).json({ success: false, message: 'Server error during forgot password' });
   }
 };
 
@@ -183,11 +185,11 @@ const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: 'Invalid token' });
+      return res.status(400).json({ success: false, message: 'Invalid token' });
     }
 
     if (typeof req.body.password !== 'string' || req.body.password.length < 6) {
-      return res.status(400).json({ message: 'Password must be a string of at least 6 characters' });
+      return res.status(400).json({ success: false, message: 'Password must be a string of at least 6 characters' });
     }
 
     // Set new password
@@ -202,7 +204,7 @@ const resetPassword = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Server error during reset password' });
+    res.status(500).json({ success: false, message: 'Server error during reset password' });
   }
 };
 
