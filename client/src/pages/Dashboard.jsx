@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Plus, FileText, ChevronRight, BarChart2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -11,19 +12,28 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await axios.get('/resume/history');
-        setHistory(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error('Error fetching history:', err);
-        setError('ERROR: FAILED_TO_LOAD_AUDIT_HISTORY');
-      } finally {
-        setLoading(false);
+  const fetchHistory = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get('/resume/history');
+      setHistory(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Error fetching history:', err);
+      const isNetwork = !err.response;
+      const msg = isNetwork 
+        ? 'Network error: Unable to connect to server. Please check your connection.'
+        : (err.response?.data?.message || 'ERROR: FAILED_TO_LOAD_AUDIT_HISTORY');
+      setError(msg);
+      if (err.response?.status !== 401) {
+        toast.error(msg, { id: 'history-error' });
       }
-    };
-    
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchHistory();
   }, []);
 
@@ -79,12 +89,16 @@ const Dashboard = () => {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 p-4 mb-8 rounded-xl font-mono">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-red-400 font-bold">{error}</p>
-              </div>
+          <div className="bg-red-500/10 border border-red-500/30 p-4 mb-8 rounded-xl font-mono flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-sm text-red-400 font-bold">{error}</span>
             </div>
+            <button
+              onClick={fetchHistory}
+              className="text-xs font-mono font-bold uppercase tracking-wider text-red-300 hover:text-white px-3 py-1 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            >
+              [ RETRY ]
+            </button>
           </div>
         )}
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Check, AlertTriangle, ArrowLeft, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import ScoreGauge from '../components/ScoreGauge';
 import SkillBadge from '../components/SkillBadge';
 import FeedbackAccordion from '../components/FeedbackAccordion';
@@ -15,19 +16,28 @@ const Analysis = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    const fetchAnalysis = async () => {
-      try {
-        const res = await axios.get(`/resume/${id}`);
-        setAnalysis(res.data);
-      } catch (err) {
-        console.error(err);
-        setError('ERROR: AUDIT_NOT_FOUND_OR_UNAUTHORIZED');
-      } finally {
-        setLoading(false);
+  const fetchAnalysis = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await axios.get(`/resume/${id}`);
+      setAnalysis(res.data);
+    } catch (err) {
+      console.error(err);
+      const isNetwork = !err.response;
+      const msg = isNetwork 
+        ? 'Network error: Unable to connect to server. Please check your connection.'
+        : (err.response?.data?.message || 'ERROR: AUDIT_NOT_FOUND_OR_UNAUTHORIZED');
+      setError(msg);
+      if (err.response?.status !== 401) {
+        toast.error(msg, { id: 'analysis-load-error' });
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAnalysis();
   }, [id]);
 
@@ -35,10 +45,15 @@ const Analysis = () => {
     setIsDeleting(true);
     try {
       await axios.delete(`/resume/${id}`);
+      toast.success('Audit discarded successfully');
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
-      setError('ERROR: FAILED_TO_DELETE_AUDIT');
+      const msg = !err.response 
+        ? 'Network error: Could not reach server to delete audit' 
+        : (err.response?.data?.message || 'Failed to delete audit');
+      setError(msg);
+      toast.error(msg, { id: 'analysis-delete-error' });
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
@@ -55,17 +70,25 @@ const Analysis = () => {
   if (error || !analysis) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-4 font-sans">
-        <div className="bg-slate-900 p-12 border border-red-500 max-w-md w-full text-center rounded-2xl shadow-xl">
+        <div className="bg-slate-900 p-12 border border-red-500/50 max-w-md w-full text-center rounded-2xl shadow-xl">
           <AlertTriangle className="h-10 w-10 text-red-500 mx-auto mb-6" />
-          <h2 className="text-xl font-mono font-bold mb-3 tracking-wider text-red-400">AUDIT_NOT_FOUND</h2>
+          <h2 className="text-xl font-mono font-bold mb-3 tracking-wider text-red-400">AUDIT_UNAVAILABLE</h2>
           <p className="text-slate-400 mb-8 font-mono text-sm">{error || 'This analysis could not be retrieved.'}</p>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-slate-800 border border-slate-700 text-slate-300 px-6 py-3 font-bold hover:bg-slate-700 transition-colors inline-flex items-center tracking-wide rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            RETURN TO DASHBOARD
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={fetchAnalysis}
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-5 py-2.5 font-bold font-mono tracking-wider transition-colors inline-flex items-center justify-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            >
+              [ RETRY ]
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="bg-slate-800 border border-slate-700 text-slate-300 px-5 py-2.5 font-bold hover:bg-slate-700 transition-colors inline-flex items-center justify-center tracking-wide rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              RETURN TO DASHBOARD
+            </button>
+          </div>
         </div>
       </div>
     );
