@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const rateLimit = require('express-rate-limit');
+const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const { protect } = require('../middleware/authMiddleware');
 const uploadMiddleware = require('../middleware/uploadMiddleware');
 const { 
@@ -14,7 +14,7 @@ const {
 const uploadLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
-  keyGenerator: (req) => req.user?.id || req.user?._id?.toString() || req.ip,
+  keyGenerator: (req) => req.user?.id || req.user?._id?.toString() || ipKeyGenerator(req),
   standardHeaders: true,
   legacyHeaders: false,
   message: {
