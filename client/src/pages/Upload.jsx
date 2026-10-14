@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { UploadCloud, FileText, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Upload = () => {
   const [file, setFile] = useState(null);
@@ -121,18 +122,31 @@ const Upload = () => {
       });
       
       clearTimeout(timeoutId);
+      toast.success('Resume audited successfully!');
       navigate(`/analysis/${res.data._id}`);
     } catch (err) {
       clearTimeout(timeoutId);
       console.error(err);
       
       let errorMsg = '> ERROR: AUDIT_FAILED - UNKNOWN_ERROR';
+      let toastMsg = 'Audit failed. Please try again.';
+
       if (axios.isCancel(err) || err.name === 'CanceledError') {
         errorMsg = '> ERROR: TIMEOUT_EXCEEDED (35000ms)';
+        toastMsg = 'Audit request timed out after 35s. The AI service may be busy.';
+      } else if (!err.response) {
+        errorMsg = '> ERROR: NETWORK_FAILURE - SERVER_UNREACHABLE';
+        toastMsg = 'Could not reach server. Please check your network connection.';
       } else if (err.response?.data?.message) {
         errorMsg = `> ERROR: [${err.response.status}] ${err.response.data.message.toUpperCase()}`;
+        toastMsg = err.response.data.message;
       }
       
+      // If 401, axios interceptor handles redirect and session expired toast
+      if (err.response?.status !== 401) {
+        toast.error(toastMsg, { id: 'upload-error' });
+      }
+
       setTerminalError(errorMsg);
       // Wait a moment then stop loading to let user retry
       setTimeout(() => {
