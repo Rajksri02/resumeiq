@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -19,14 +19,16 @@ const ForgotPassword = () => {
       const response = await axios.post('/auth/forgot-password', { email });
 
       if (response.status === 200) {
-        setMessage('If that email exists, a reset link has been sent.');
+        const msg = 'If that email exists, a reset link has been sent.';
+        setMessage(msg);
+        toast.success(msg, { id: 'forgot-password-success' });
       }
     } catch (err) {
-      if (!err.response) {
-        setError('Could not connect to the server. Please try again later.');
-      } else {
-        setError(err.response.data?.message || 'Something went wrong');
-      }
+      const msg = !err.response 
+        ? 'Could not connect to the server. Please try again later.' 
+        : (err.response.data?.message || 'Something went wrong');
+      setError(msg);
+      toast.error(msg, { id: 'forgot-password-error' });
     } finally {
       setIsLoading(false);
     }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BarChart2, Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -14,11 +15,16 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await register(name, email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to register');
+      const msg = !err.response 
+        ? 'Network error: Unable to connect to server. Please check your connection.'
+        : (err.response?.data?.message || 'Failed to register');
+      setError(msg);
+      toast.error(msg, { id: 'register-error' });
     }
   };
 

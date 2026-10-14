@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -15,7 +15,9 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      const msg = 'Passwords do not match';
+      setError(msg);
+      toast.error(msg, { id: 'password-mismatch' });
       return;
     }
 
@@ -27,17 +29,19 @@ const ResetPassword = () => {
       const response = await axios.post(`/auth/reset-password/${token}`, { password });
 
       if (response.status === 200) {
-        setMessage('Password reset successful. Redirecting to login...');
+        const msg = 'Password reset successful. Redirecting to login...';
+        setMessage(msg);
+        toast.success('Password reset successful!', { id: 'reset-password-success' });
         setTimeout(() => {
           navigate('/login');
-        }, 3000);
+        }, 2000);
       }
     } catch (err) {
-      if (!err.response) {
-        setError('Could not connect to the server. Please try again later.');
-      } else {
-        setError(err.response.data?.message || 'Something went wrong');
-      }
+      const msg = !err.response 
+        ? 'Could not connect to the server. Please try again later.' 
+        : (err.response.data?.message || 'Something went wrong');
+      setError(msg);
+      toast.error(msg, { id: 'reset-password-error' });
     } finally {
       setIsLoading(false);
     }
