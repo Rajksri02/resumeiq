@@ -139,8 +139,12 @@ const forgotPassword = async (req, res) => {
 
     await user.save({ validateBeforeSave: false });
 
-    // Create reset url
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    // Create reset url using the first origin if CLIENT_URL is a list
+    const clientBaseUrl = (process.env.CLIENT_URL || 'http://localhost:5173')
+      .split(',')[0]
+      .trim()
+      .replace(/\/+$/, '');
+    const resetUrl = `${clientBaseUrl}/reset-password/${resetToken}`;
 
     const message = `You requested a password reset for your ResumeIQ account. Click this link to choose a new password (valid for 10 minutes): ${resetUrl}\nIf you didn't request this, you can ignore this email.`;
 
