@@ -6,8 +6,12 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
-// Setup Axios base URL
-axios.defaults.baseURL = 'http://localhost:5001/api';
+// Setup Axios base URL dynamically from environment variable
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
+axios.defaults.baseURL = rawApiUrl.endsWith('/api')
+  ? rawApiUrl
+  : (rawApiUrl ? `${rawApiUrl.replace(/\/+$/, '')}/api` : '/api');
+
 
 // Initial authorization header if token exists in localStorage
 const initialToken = localStorage.getItem('token');
