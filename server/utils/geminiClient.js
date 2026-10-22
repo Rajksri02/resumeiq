@@ -2,14 +2,79 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const PRIMARY_MODEL = "gemini-3.8-flash";
-const FALLBACK_MODEL = "gemini-2.5-flash";
+const PRIMARY_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ? process.env.GEMINI_FALLBACK_MODEL.trim() : null;
+const TIMEOUT_MS = parseInt(process.env.GEMINI_TIMEOUT_MS, 10) || 45000;
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const getOutcome = (err) => {
+  if (!err) return 'success';
+  const msg = (err?.message || '').toLowerCase();
+  if (
+    err?.isTimeout ||
+    err?.status === 504 ||
+    err?.statusCode === 504 ||
+    err?.code === 'GATEWAY_TIMEOUT' ||
+    err?.code === 'ETIMEDOUT' ||
+    err?.name === 'GoogleGenerativeAIAbortError' ||
+    msg.includes('timeout') ||
+    msg.includes('timed out') ||
+    msg.includes('aborted')
+  ) {
+    return 'timeout';
+  }
+  if (
+    err?.status === 429 ||
+    err?.statusCode === 429 ||
+    msg.includes('429') ||
+    msg.includes('quota') ||
+    msg.includes('resource_exhausted') ||
+    msg.includes('too many requests')
+  ) {
+    return '429';
+  }
+  if (
+    err?.status === 503 ||
+    err?.statusCode === 503 ||
+    msg.includes('503') ||
+    msg.includes('service unavailable')
+  ) {
+    return '503';
+  }
+  if (
+    err?.status === 404 ||
+    err?.statusCode === 404 ||
+    msg.includes('404') ||
+    msg.includes('not found') ||
+    msg.includes('no longer available') ||
+    msg.includes('is not found')
+  ) {
+    return '404';
+  }
+  return String(err?.status || err?.statusCode || 'error');
+};
+
 const handleGeminiError = (err, modelName) => {
   const msg = (err?.message || '').toLowerCase();
-  console.error(`[Gemini API Error on ${modelName}]:`, err);
+  console.error(`[Gemini API Error on ${modelName}]:`, err?.message || err);
+
+  if (
+    err?.isTimeout ||
+    err?.status === 504 ||
+    err?.statusCode === 504 ||
+    err?.code === 'GATEWAY_TIMEOUT' ||
+    err?.name === 'GoogleGenerativeAIAbortError' ||
+    msg.includes('timeout') ||
+    msg.includes('timed out') ||
+    msg.includes('aborted')
+  ) {
+    const timeoutError = new Error('The AI analysis timed out. The service took too long to respond, please try again.');
+    timeoutError.statusCode = 504;
+    timeoutError.status = 504;
+    timeoutError.code = 'GATEWAY_TIMEOUT';
+    return timeoutError;
+  }
 
   if (
     msg.includes('429') ||
@@ -66,74 +131,110 @@ const handleGeminiError = (err, modelName) => {
   return err;
 };
 
+const getModel = (modelName, customGenConfig = {}) => {
+  return genAI.getGenerativeModel({
+    model: modelName,
+    generationConfig: {
+      thinkingConfig: {
+        thinkingLevel: "low"
+      },
+      ...customGenConfig
+    }
+  });
+};
+
+const executeAttempt = async (modelName, prompt, attemptNumber, options = {}) => {
+  const model = getModel(modelName, options.generationConfig);
+  const startTime = Date.now();
+  let timer;
+
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const err = new Error('The AI analysis timed out. The service took too long to respond, please try again.');
+      err.statusCode = 504;
+      err.status = 504;
+      err.code = 'GATEWAY_TIMEOUT';
+      err.isTimeout = true;
+      reject(err);
+    }, TIMEOUT_MS);
+  });
+
+  try {
+    const response = await Promise.race([
+      model.generateContent(prompt, { timeout: TIMEOUT_MS }),
+      timeoutPromise
+    ]);
+    const duration = Date.now() - startTime;
+    console.log(`[Gemini API] Model: ${modelName} | Attempt: ${attemptNumber} | Duration: ${duration}ms | Outcome: success`);
+    return { success: true, response, duration, outcome: 'success' };
+  } catch (err) {
+    const duration = Date.now() - startTime;
+    const outcome = getOutcome(err);
+    console.log(`[Gemini API] Model: ${modelName} | Attempt: ${attemptNumber} | Duration: ${duration}ms | Outcome: ${outcome}`);
+    return { success: false, error: err, duration, outcome };
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 const modelWrapper = {
-  generateContent: async (prompt) => {
-    let currentModelName = PRIMARY_MODEL;
-    let model = genAI.getGenerativeModel({ model: currentModelName });
-    
-    try {
-      const response = await model.generateContent(prompt);
-      console.log(`[Gemini API] Successfully served request on first try using model: ${currentModelName}`);
-      return response;
-    } catch (error) {
-      const errorMessage = error.message.toLowerCase();
-      
-      let shouldFallback = false;
+  generateContent: async (prompt, options = {}) => {
+    // Attempt 1: Primary Model
+    const res1 = await executeAttempt(PRIMARY_MODEL, prompt, 1, options);
+    if (res1.success) {
+      return res1.response;
+    }
 
-      // Specific handling for Gemini 429 (quota / rate limit)
-      if (
-        errorMessage.includes('429') ||
-        errorMessage.includes('quota') ||
-        errorMessage.includes('resource_exhausted') ||
-        errorMessage.includes('too many requests')
-      ) {
-        console.error(`[Gemini API] Quota / rate limit exceeded (429) on model ${currentModelName}:`, error.message);
-        throw handleGeminiError(error, currentModelName);
+    const outcome1 = res1.outcome;
+
+    // Fail immediately on quota (429) or timeout
+    if (outcome1 === '429' || outcome1 === 'timeout') {
+      throw handleGeminiError(res1.error, PRIMARY_MODEL);
+    }
+
+    // Handle 503 / Service Unavailable: wait 1.5s, retry primary model once
+    if (outcome1 === '503') {
+      console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} encountered 503. Waiting 1.5s before attempt 2...`);
+      await wait(1500);
+
+      const res2 = await executeAttempt(PRIMARY_MODEL, prompt, 2, options);
+      if (res2.success) {
+        return res2.response;
       }
 
-      // Check for 503 / Service Unavailable errors
-      if (errorMessage.includes('503') || errorMessage.includes('service unavailable')) {
-        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} encountered 503 Service Unavailable. Waiting 1.5s before retrying...`);
-        await wait(1500);
-        
-        try {
-          const retryResponse = await model.generateContent(prompt);
-          console.log(`[Gemini API] Successfully served request after 503 retry using model: ${currentModelName}`);
-          return retryResponse;
-        } catch (retryError) {
-          console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} failed on retry:`, retryError.message);
-          shouldFallback = true;
+      if (res2.outcome === '429' || res2.outcome === 'timeout') {
+        throw handleGeminiError(res2.error, PRIMARY_MODEL);
+      }
+
+      // If retry on primary failed and fallback model is configured, try fallback model
+      if (FALLBACK_MODEL) {
+        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} failed on retry. Attempting fallback model: ${FALLBACK_MODEL}`);
+        const resFallback = await executeAttempt(FALLBACK_MODEL, prompt, 3, options);
+        if (resFallback.success) {
+          return resFallback.response;
         }
-      } 
-      // Check for deprecation/not found errors
-      else if (
-        errorMessage.includes('404') || 
-        errorMessage.includes('is not found') || 
-        errorMessage.includes('no longer available')
-      ) {
-        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} failed (Not Found/Deprecated).`);
-        shouldFallback = true;
+        throw handleGeminiError(resFallback.error, FALLBACK_MODEL);
       } else {
-        // If it's a different error (e.g., authentication, invalid key), sanitize and re-throw
-        throw handleGeminiError(error, currentModelName);
-      }
-      
-      if (shouldFallback) {
-        console.warn(`[Gemini API] Retrying with fallback model: ${FALLBACK_MODEL}`);
-        
-        currentModelName = FALLBACK_MODEL;
-        model = genAI.getGenerativeModel({ model: currentModelName });
-        
-        try {
-          const fallbackResponse = await model.generateContent(prompt);
-          console.log(`[Gemini API] Successfully served request via fallback model: ${currentModelName}`);
-          return fallbackResponse;
-        } catch (fallbackError) {
-          console.error(`[Gemini API] Fallback model ${FALLBACK_MODEL} also failed:`, fallbackError.message);
-          throw handleGeminiError(fallbackError, currentModelName);
-        }
+        throw handleGeminiError(res2.error, PRIMARY_MODEL);
       }
     }
+
+    // Handle 404 / Not Found / Deprecated
+    if (outcome1 === '404') {
+      if (FALLBACK_MODEL) {
+        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} not found / deprecated. Attempting fallback model: ${FALLBACK_MODEL}`);
+        const resFallback = await executeAttempt(FALLBACK_MODEL, prompt, 2, options);
+        if (resFallback.success) {
+          return resFallback.response;
+        }
+        throw handleGeminiError(resFallback.error, FALLBACK_MODEL);
+      } else {
+        throw handleGeminiError(res1.error, PRIMARY_MODEL);
+      }
+    }
+
+    // Any other error
+    throw handleGeminiError(res1.error, PRIMARY_MODEL);
   }
 };
 
