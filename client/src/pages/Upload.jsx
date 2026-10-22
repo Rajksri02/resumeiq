@@ -107,11 +107,11 @@ const Upload = () => {
       formData.append('jobDescription', jobDescription);
     }
 
-    // 35 second timeout controller
+    // 60 second timeout controller (longer than server-side 45s timeout)
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       controller.abort();
-    }, 35000);
+    }, 60000);
 
     try {
       const res = await axios.post('/resume/upload', formData, {
@@ -132,8 +132,8 @@ const Upload = () => {
       let toastMsg = 'Audit failed. Please try again.';
 
       if (axios.isCancel(err) || err.name === 'CanceledError') {
-        errorMsg = '> ERROR: TIMEOUT_EXCEEDED (35000ms)';
-        toastMsg = 'Audit request timed out after 35s. The AI service may be busy.';
+        errorMsg = '> ERROR: TIMEOUT_EXCEEDED (60000ms)';
+        toastMsg = 'Audit request timed out after 60s. The AI service may be busy.';
       } else if (!err.response) {
         errorMsg = '> ERROR: NETWORK_FAILURE - SERVER_UNREACHABLE';
         toastMsg = 'Could not reach server. Please check your network connection.';
