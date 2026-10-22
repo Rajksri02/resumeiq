@@ -47,6 +47,16 @@ const uploadResume = async (req, res, next) => {
 
     const lower = (message + ' ' + (error.stack || '')).toLowerCase();
     if (
+      statusCode === 504 ||
+      lower.includes('504') ||
+      lower.includes('timed out') ||
+      lower.includes('timeout') ||
+      error.code === 'GATEWAY_TIMEOUT' ||
+      error.code === 'ETIMEDOUT'
+    ) {
+      statusCode = 504;
+      message = error.statusCode === 504 ? error.message : 'The AI analysis timed out. The service took too long to respond, please try again.';
+    } else if (
       lower.includes('429') ||
       lower.includes('quota') ||
       lower.includes('resource_exhausted') ||
