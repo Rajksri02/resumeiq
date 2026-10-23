@@ -3,6 +3,7 @@ const router = express.Router();
 const { rateLimit, ipKeyGenerator } = require('express-rate-limit');
 const { protect } = require('../middleware/authMiddleware');
 const uploadMiddleware = require('../middleware/uploadMiddleware');
+const Resume = require('../models/Resume');
 const { 
   uploadResume,
   getResumeHistory,
@@ -25,6 +26,7 @@ const uploadLimiter = rateLimit({
 });
 
 // Rate limiting: 5 rewrite requests per 10 minutes per authenticated user (falling back to IP)
+// Applied only when a generation actually occurs (cached reads bypass this)
 const rewritesLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
@@ -37,11 +39,39 @@ const rewritesLimiter = rateLimit({
   }
 });
 
+// Middleware to serve cached rewrites before rate limiter is engaged
+const checkRewriteCache = async (req, res, next) => {
+  const shouldRegenerate = req.query.regenerate === 'true';
+  if (!shouldRegenerate) {
+    try {
+      const resume = await Resume.findOne({ _id: req.params.id, user: req.user.id });
+      if (!resume) {
+        return res.status(404).json({ success: false, message: 'Resume not found' });
+      }
+      if (resume.rewrites && resume.rewrites.length > 0) {
+        return res.status(200).json({
+          success: true,
+          rewrites: resume.rewrites,
+          rewritesGeneratedAt: resume.rewritesGeneratedAt
+        });
+      }
+      // Pass the retrieved resume to avoid double query in controller
+      req.resume = resume;
+    } catch (err) {
+      if (err.name === 'CastError') {
+        return res.status(404).json({ success: false, message: 'Resume not found' });
+      }
+      return res.status(500).json({ success: false, message: 'Failed to retrieve resume' });
+    }
+  }
+  next();
+};
+
 // Routes
 router.post('/upload', protect, uploadLimiter, uploadMiddleware, uploadResume);
 router.get('/history', protect, getResumeHistory);
 router.get('/:id', protect, getResumeById);
 router.delete('/:id', protect, deleteResume);
-router.post('/:id/rewrites', protect, rewritesLimiter, getResumeRewrites);
+router.post('/:id/rewrites', protect, checkRewriteCache, rewritesLimiter, getResumeRewrites);
 
 module.exports = router;
