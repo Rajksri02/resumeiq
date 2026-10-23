@@ -174,6 +174,9 @@ const deleteResume = async (req, res) => {
   }
 };
 
+// Track in-flight rewrite generations to prevent duplicate concurrent runs
+const activeGenerations = new Set();
+
 // @desc    Generate or retrieve rewrite suggestions for a resume
 // @route   POST /api/resume/:id/rewrites
 // @access  Private
@@ -183,7 +186,7 @@ const getResumeRewrites = async (req, res) => {
   const shouldRegenerate = req.query.regenerate === 'true';
 
   try {
-    const resume = await Resume.findOne({ _id: id, user: req.user.id });
+    const resume = req.resume || (await Resume.findOne({ _id: id, user: req.user.id }));
 
     if (!resume) {
       return res.status(404).json({ success: false, message: 'Resume not found' });
@@ -198,30 +201,45 @@ const getResumeRewrites = async (req, res) => {
       });
     }
 
-    // Enforce overall deadline
-    const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || 55000;
-    const deadline = requestStartTime + TOTAL_TIMEOUT_MS;
+    // In-flight guard: prevent duplicate concurrent generations for the same resume (e.g. double click)
+    const resumeIdStr = resume._id.toString();
+    if (activeGenerations.has(resumeIdStr)) {
+      return res.status(409).json({
+        success: false,
+        message: 'Rewrite generation is already in progress for this resume. Please wait.'
+      });
+    }
 
-    const rewrites = await generateRewrites(
-      {
-        extractedText: resume.extractedText,
-        weaknesses: resume.analysis?.weaknesses || [],
-        suggestions: resume.analysis?.suggestions || [],
-        jobDescription: resume.jobDescription
-      },
-      false,
-      { deadline }
-    );
+    activeGenerations.add(resumeIdStr);
 
-    resume.rewrites = rewrites;
-    resume.rewritesGeneratedAt = new Date();
-    await resume.save();
+    try {
+      // Enforce overall deadline
+      const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || 55000;
+      const deadline = requestStartTime + TOTAL_TIMEOUT_MS;
 
-    return res.status(200).json({
-      success: true,
-      rewrites: resume.rewrites,
-      rewritesGeneratedAt: resume.rewritesGeneratedAt
-    });
+      const rewrites = await generateRewrites(
+        {
+          extractedText: resume.extractedText,
+          weaknesses: resume.analysis?.weaknesses || [],
+          suggestions: resume.analysis?.suggestions || [],
+          jobDescription: resume.jobDescription
+        },
+        false,
+        { deadline }
+      );
+
+      resume.rewrites = rewrites;
+      resume.rewritesGeneratedAt = new Date();
+      await resume.save();
+
+      return res.status(200).json({
+        success: true,
+        rewrites: resume.rewrites,
+        rewritesGeneratedAt: resume.rewritesGeneratedAt
+      });
+    } finally {
+      activeGenerations.delete(resumeIdStr);
+    }
   } catch (error) {
     console.error('Error generating rewrites:', error);
 
