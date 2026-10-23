@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { extractTextFromPDF } = require('../utils/pdfParser');
 const { analyzeResumeText } = require('../utils/analyzeResume');
+const { generateRewrites } = require('../utils/generateRewrites');
 const Resume = require('../models/Resume');
 
 // @desc    Upload resume, extract text, and analyze with Gemini
@@ -173,9 +174,121 @@ const deleteResume = async (req, res) => {
   }
 };
 
+// @desc    Generate or retrieve rewrite suggestions for a resume
+// @route   POST /api/resume/:id/rewrites
+// @access  Private
+const getResumeRewrites = async (req, res) => {
+  const requestStartTime = Date.now();
+  const { id } = req.params;
+  const shouldRegenerate = req.query.regenerate === 'true';
+
+  try {
+    const resume = await Resume.findOne({ _id: id, user: req.user.id });
+
+    if (!resume) {
+      return res.status(404).json({ success: false, message: 'Resume not found' });
+    }
+
+    // If rewrites already exist and regenerate is not requested, return them
+    if (!shouldRegenerate && resume.rewrites && resume.rewrites.length > 0) {
+      return res.status(200).json({
+        success: true,
+        rewrites: resume.rewrites,
+        rewritesGeneratedAt: resume.rewritesGeneratedAt
+      });
+    }
+
+    // Enforce overall deadline
+    const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || 55000;
+    const deadline = requestStartTime + TOTAL_TIMEOUT_MS;
+
+    const rewrites = await generateRewrites(
+      {
+        extractedText: resume.extractedText,
+        weaknesses: resume.analysis?.weaknesses || [],
+        suggestions: resume.analysis?.suggestions || [],
+        jobDescription: resume.jobDescription
+      },
+      false,
+      { deadline }
+    );
+
+    resume.rewrites = rewrites;
+    resume.rewritesGeneratedAt = new Date();
+    await resume.save();
+
+    return res.status(200).json({
+      success: true,
+      rewrites: resume.rewrites,
+      rewritesGeneratedAt: resume.rewritesGeneratedAt
+    });
+  } catch (error) {
+    console.error('Error generating rewrites:', error);
+
+    if (error.name === 'CastError') {
+      return res.status(404).json({ success: false, message: 'Resume not found' });
+    }
+
+    let statusCode = error.statusCode || error.status || 500;
+    let message = error.message || 'Error generating rewrite suggestions';
+
+    const lower = (message + ' ' + (error.stack || '')).toLowerCase();
+    if (
+      statusCode === 504 ||
+      lower.includes('504') ||
+      lower.includes('timed out') ||
+      lower.includes('timeout') ||
+      error.code === 'GATEWAY_TIMEOUT' ||
+      error.code === 'ETIMEDOUT'
+    ) {
+      statusCode = 504;
+      message = error.statusCode === 504 ? error.message : 'The AI analysis timed out. The service took too long to respond, please try again.';
+    } else if (
+      lower.includes('429') ||
+      lower.includes('quota') ||
+      lower.includes('resource_exhausted') ||
+      lower.includes('too many requests')
+    ) {
+      statusCode = 429;
+      message = 'The AI service is busy, try again in a minute';
+    } else if (
+      lower.includes('503') ||
+      lower.includes('service unavailable')
+    ) {
+      statusCode = 503;
+      message = 'The AI service is busy, try again in a minute';
+    } else if (
+      lower.includes('api_key_invalid') ||
+      lower.includes('api key not valid') ||
+      lower.includes('invalid api key') ||
+      lower.includes('permission_denied')
+    ) {
+      statusCode = 503;
+      message = 'Analysis unavailable';
+    } else if (
+      lower.includes('generativelanguage.googleapis.com') ||
+      lower.includes('google-generative-ai') ||
+      lower.includes('googlegenerativeai')
+    ) {
+      statusCode = 500;
+      message = 'Analysis unavailable';
+    } else if (statusCode === 422 || error.code === 'REWRITES_VALIDATION_FAILED') {
+      statusCode = 422;
+      message = error.message || 'Could not generate verifiable rewrite suggestions from your resume. Please try again.';
+    }
+
+    res.status(statusCode).json({
+      success: false,
+      message,
+      ...(process.env.NODE_ENV !== 'production' && error.stack ? { stack: error.stack } : {})
+    });
+  }
+};
+
 module.exports = {
   uploadResume,
   getResumeHistory,
   getResumeById,
-  deleteResume
+  deleteResume,
+  getResumeRewrites
 };
