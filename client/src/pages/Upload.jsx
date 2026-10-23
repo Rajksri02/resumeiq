@@ -15,8 +15,10 @@ const Upload = () => {
 
   // Terminal state
   const [terminalLines, setTerminalLines] = useState([]);
-  const [isTerminalDone, setIsTerminalDone] = useState(false);
+  const [deepAnalysisStarted, setDeepAnalysisStarted] = useState(false);
   const [terminalError, setTerminalError] = useState(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const startTimeRef = useRef(null);
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -64,23 +66,39 @@ const Upload = () => {
   const terminalSteps = [
     "> INITIATING_AUDIT...",
     "> EXTRACTING_TOKENS... [OK]",
-    "> CROSS_REFERENCING_KEYWORDS... [OK]",
-    "> RUNNING_DEEP_ANALYSIS"
+    "> CROSS_REFERENCING_KEYWORDS... [OK]"
   ];
 
+  // Track elapsed seconds while waiting for request completion
+  useEffect(() => {
+    if (!loading || terminalError) return;
+
+    startTimeRef.current = Date.now();
+    setElapsedSeconds(0);
+
+    const timer = setInterval(() => {
+      if (startTimeRef.current) {
+        setElapsedSeconds(Math.floor((Date.now() - startTimeRef.current) / 1000));
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [loading, terminalError]);
+
+  // Sequentially display audit initialization steps then deep analysis
   useEffect(() => {
     if (!loading || terminalError) return;
     
     let currentStep = 0;
     setTerminalLines([terminalSteps[0]]);
+    setDeepAnalysisStarted(false);
     
     const interval = setInterval(() => {
       currentStep++;
       if (currentStep < terminalSteps.length) {
         setTerminalLines(prev => [...prev, terminalSteps[currentStep]]);
-      }
-      if (currentStep === terminalSteps.length - 1) {
-        setIsTerminalDone(true);
+      } else {
+        setDeepAnalysisStarted(true);
         clearInterval(interval);
       }
     }, 800);
@@ -99,7 +117,9 @@ const Upload = () => {
     setError(null);
     setTerminalError(null);
     setTerminalLines([]);
-    setIsTerminalDone(false);
+    setDeepAnalysisStarted(false);
+    setElapsedSeconds(0);
+    startTimeRef.current = Date.now();
 
     const formData = new FormData();
     formData.append('resume', file);
@@ -107,11 +127,11 @@ const Upload = () => {
       formData.append('jobDescription', jobDescription);
     }
 
-    // 60 second timeout controller (longer than server-side 45s timeout)
+    // 65 second timeout controller (longer than server-side 55s timeout)
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       controller.abort();
-    }, 60000);
+    }, 65000);
 
     try {
       const res = await axios.post('/resume/upload', formData, {
@@ -132,8 +152,8 @@ const Upload = () => {
       let toastMsg = 'Audit failed. Please try again.';
 
       if (axios.isCancel(err) || err.name === 'CanceledError') {
-        errorMsg = '> ERROR: TIMEOUT_EXCEEDED (60000ms)';
-        toastMsg = 'Audit request timed out after 60s. The AI service may be busy.';
+        errorMsg = '> ERROR: TIMEOUT_EXCEEDED (65000ms)';
+        toastMsg = 'Audit request timed out after 65s. The AI service may be busy.';
       } else if (!err.response) {
         errorMsg = '> ERROR: NETWORK_FAILURE - SERVER_UNREACHABLE';
         toastMsg = 'Could not reach server. Please check your network connection.';
@@ -174,10 +194,12 @@ const Upload = () => {
                 {line}
               </div>
             ))}
-            {isTerminalDone && !terminalError && (
-              <div className="text-emerald-400 flex items-center mt-2">
-                <span className="mr-2">&gt; AWAITING_SERVER_RESPONSE</span>
-                <span className="animate-pulse w-2.5 h-5 bg-emerald-400 inline-block"></span>
+            {deepAnalysisStarted && (
+              <div className="text-emerald-400 flex items-center">
+                <span>{`> RUNNING_DEEP_ANALYSIS... ${elapsedSeconds}s (this can take up to a minute)`}</span>
+                {!terminalError && (
+                  <span className="animate-pulse w-2.5 h-4 bg-emerald-400 inline-block ml-2"></span>
+                )}
               </div>
             )}
             {terminalError && (
