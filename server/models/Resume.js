@@ -53,7 +53,7 @@ const resumeSchema = new mongoose.Schema({
       original: { type: String, trim: true },
       improved: { type: String, trim: true },
       reason: { type: String, trim: true },
-      needsInput: { type: Boolean, default: false },
+      optionalMetric: { type: String, trim: true, default: '' },
     }
   ],
   rewritesGeneratedAt: {
