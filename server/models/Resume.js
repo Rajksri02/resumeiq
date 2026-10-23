@@ -47,6 +47,18 @@ const resumeSchema = new mongoose.Schema({
     },
     suggestions: [String],
   },
+  rewrites: [
+    {
+      section: { type: String, trim: true },
+      original: { type: String, trim: true },
+      improved: { type: String, trim: true },
+      reason: { type: String, trim: true },
+      needsInput: { type: Boolean, default: false },
+    }
+  ],
+  rewritesGeneratedAt: {
+    type: Date,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
