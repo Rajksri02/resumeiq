@@ -11,6 +11,7 @@ const uploadResume = async (req, res, next) => {
     return res.status(400).json({ success: false, message: 'No file uploaded or invalid file format' });
   }
 
+  const requestStartTime = Date.now();
   const filePath = req.file.path;
   const { jobDescription } = req.body;
 
@@ -24,8 +25,10 @@ const uploadResume = async (req, res, next) => {
       });
     }
 
-    // Analyze with Gemini
-    const analysisResult = await analyzeResumeText(extractedText, jobDescription);
+    // Analyze with Gemini enforcing one overall deadline
+    const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || 55000;
+    const deadline = requestStartTime + TOTAL_TIMEOUT_MS;
+    const analysisResult = await analyzeResumeText(extractedText, jobDescription, false, { deadline });
 
     // Save to database
     const resume = new Resume({

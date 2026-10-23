@@ -4,9 +4,19 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const PRIMARY_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ? process.env.GEMINI_FALLBACK_MODEL.trim() : null;
-const TIMEOUT_MS = parseInt(process.env.GEMINI_TIMEOUT_MS, 10) || 45000;
+const DEFAULT_TOTAL_TIMEOUT_MS = 55000;
+const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || DEFAULT_TOTAL_TIMEOUT_MS;
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const createTimeoutError = () => {
+  const timeoutError = new Error('The AI analysis timed out. The service took too long to respond, please try again.');
+  timeoutError.statusCode = 504;
+  timeoutError.status = 504;
+  timeoutError.code = 'GATEWAY_TIMEOUT';
+  timeoutError.isTimeout = true;
+  return timeoutError;
+};
 
 const getOutcome = (err) => {
   if (!err) return 'success';
@@ -18,6 +28,7 @@ const getOutcome = (err) => {
     err?.code === 'GATEWAY_TIMEOUT' ||
     err?.code === 'ETIMEDOUT' ||
     err?.name === 'GoogleGenerativeAIAbortError' ||
+    err?.name === 'AbortError' ||
     msg.includes('timeout') ||
     msg.includes('timed out') ||
     msg.includes('aborted')
@@ -65,15 +76,12 @@ const handleGeminiError = (err, modelName) => {
     err?.statusCode === 504 ||
     err?.code === 'GATEWAY_TIMEOUT' ||
     err?.name === 'GoogleGenerativeAIAbortError' ||
+    err?.name === 'AbortError' ||
     msg.includes('timeout') ||
     msg.includes('timed out') ||
     msg.includes('aborted')
   ) {
-    const timeoutError = new Error('The AI analysis timed out. The service took too long to respond, please try again.');
-    timeoutError.statusCode = 504;
-    timeoutError.status = 504;
-    timeoutError.code = 'GATEWAY_TIMEOUT';
-    return timeoutError;
+    return createTimeoutError();
   }
 
   if (
@@ -138,39 +146,47 @@ const getModel = (modelName, customGenConfig = {}) => {
       thinkingConfig: {
         thinkingLevel: "low"
       },
+      responseMimeType: "application/json",
       ...customGenConfig
     }
   });
 };
 
-const executeAttempt = async (modelName, prompt, attemptNumber, options = {}) => {
+const executeAttempt = async (modelName, prompt, attemptNumber, timeoutMs, options = {}) => {
+  if (timeoutMs <= 0) {
+    const err = createTimeoutError();
+    console.log(`[Gemini API] Model: ${modelName} | Attempt: ${attemptNumber} | Timeout hit before attempt (remaining: ${timeoutMs}ms) | Outcome: timeout`);
+    return { success: false, error: err, duration: 0, outcome: 'timeout' };
+  }
+
   const model = getModel(modelName, options.generationConfig);
   const startTime = Date.now();
+  const controller = new AbortController();
   let timer;
 
   const timeoutPromise = new Promise((_, reject) => {
     timer = setTimeout(() => {
-      const err = new Error('The AI analysis timed out. The service took too long to respond, please try again.');
-      err.statusCode = 504;
-      err.status = 504;
-      err.code = 'GATEWAY_TIMEOUT';
-      err.isTimeout = true;
-      reject(err);
-    }, TIMEOUT_MS);
+      try {
+        controller.abort();
+      } catch (abortErr) {
+        // ignore
+      }
+      reject(createTimeoutError());
+    }, timeoutMs);
   });
 
   try {
     const response = await Promise.race([
-      model.generateContent(prompt, { timeout: TIMEOUT_MS }),
+      model.generateContent(prompt, { timeout: timeoutMs, signal: controller.signal }),
       timeoutPromise
     ]);
     const duration = Date.now() - startTime;
-    console.log(`[Gemini API] Model: ${modelName} | Attempt: ${attemptNumber} | Duration: ${duration}ms | Outcome: success`);
+    console.log(`[Gemini API] Model: ${modelName} | Attempt: ${attemptNumber} | Duration: ${duration}ms (timeout: ${timeoutMs}ms) | Outcome: success`);
     return { success: true, response, duration, outcome: 'success' };
   } catch (err) {
     const duration = Date.now() - startTime;
     const outcome = getOutcome(err);
-    console.log(`[Gemini API] Model: ${modelName} | Attempt: ${attemptNumber} | Duration: ${duration}ms | Outcome: ${outcome}`);
+    console.log(`[Gemini API] Model: ${modelName} | Attempt: ${attemptNumber} | Duration: ${duration}ms (timeout: ${timeoutMs}ms) | Outcome: ${outcome}`);
     return { success: false, error: err, duration, outcome };
   } finally {
     clearTimeout(timer);
@@ -179,8 +195,17 @@ const executeAttempt = async (modelName, prompt, attemptNumber, options = {}) =>
 
 const modelWrapper = {
   generateContent: async (prompt, options = {}) => {
+    const deadline = options.deadline || (Date.now() + TOTAL_TIMEOUT_MS);
+    const getRemainingMs = () => deadline - Date.now();
+
+    // Check deadline before Attempt 1
+    let remainingMs = getRemainingMs();
+    if (remainingMs <= 0) {
+      throw createTimeoutError();
+    }
+
     // Attempt 1: Primary Model
-    const res1 = await executeAttempt(PRIMARY_MODEL, prompt, 1, options);
+    const res1 = await executeAttempt(PRIMARY_MODEL, prompt, 1, remainingMs, options);
     if (res1.success) {
       return res1.response;
     }
@@ -194,10 +219,21 @@ const modelWrapper = {
 
     // Handle 503 / Service Unavailable: wait 1.5s, retry primary model once
     if (outcome1 === '503') {
+      remainingMs = getRemainingMs();
+      if (remainingMs <= 1500) {
+        console.warn(`[Gemini API] Insufficient time (${remainingMs}ms) for 503 backoff before overall deadline. Timing out.`);
+        throw createTimeoutError();
+      }
+
       console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} encountered 503. Waiting 1.5s before attempt 2...`);
       await wait(1500);
 
-      const res2 = await executeAttempt(PRIMARY_MODEL, prompt, 2, options);
+      remainingMs = getRemainingMs();
+      if (remainingMs <= 0) {
+        throw createTimeoutError();
+      }
+
+      const res2 = await executeAttempt(PRIMARY_MODEL, prompt, 2, remainingMs, options);
       if (res2.success) {
         return res2.response;
       }
@@ -208,8 +244,13 @@ const modelWrapper = {
 
       // If retry on primary failed and fallback model is configured, try fallback model
       if (FALLBACK_MODEL) {
-        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} failed on retry. Attempting fallback model: ${FALLBACK_MODEL}`);
-        const resFallback = await executeAttempt(FALLBACK_MODEL, prompt, 3, options);
+        remainingMs = getRemainingMs();
+        if (remainingMs <= 0) {
+          throw createTimeoutError();
+        }
+
+        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} failed on retry. Attempting fallback model: ${FALLBACK_MODEL} (${remainingMs}ms remaining)`);
+        const resFallback = await executeAttempt(FALLBACK_MODEL, prompt, 3, remainingMs, options);
         if (resFallback.success) {
           return resFallback.response;
         }
@@ -222,8 +263,13 @@ const modelWrapper = {
     // Handle 404 / Not Found / Deprecated
     if (outcome1 === '404') {
       if (FALLBACK_MODEL) {
-        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} not found / deprecated. Attempting fallback model: ${FALLBACK_MODEL}`);
-        const resFallback = await executeAttempt(FALLBACK_MODEL, prompt, 2, options);
+        remainingMs = getRemainingMs();
+        if (remainingMs <= 0) {
+          throw createTimeoutError();
+        }
+
+        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} not found / deprecated. Attempting fallback model: ${FALLBACK_MODEL} (${remainingMs}ms remaining)`);
+        const resFallback = await executeAttempt(FALLBACK_MODEL, prompt, 2, remainingMs, options);
         if (resFallback.success) {
           return resFallback.response;
         }
@@ -235,7 +281,9 @@ const modelWrapper = {
 
     // Any other error
     throw handleGeminiError(res1.error, PRIMARY_MODEL);
-  }
+  },
+  createTimeoutError,
+  TOTAL_TIMEOUT_MS
 };
 
 module.exports = modelWrapper;

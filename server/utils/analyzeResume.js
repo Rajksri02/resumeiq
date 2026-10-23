@@ -56,7 +56,27 @@ You MUST respond ONLY with valid JSON. Do not include markdown formatting (like 
   return prompt;
 };
 
-const analyzeResumeText = async (resumeText, jobDescription = null, isRetry = false) => {
+const analyzeResumeText = async (resumeText, jobDescription = null, isRetry = false, options = {}) => {
+  if (typeof isRetry === 'object' && isRetry !== null) {
+    options = isRetry;
+    isRetry = false;
+  }
+
+  const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || 55000;
+  const deadline = options.deadline || (Date.now() + TOTAL_TIMEOUT_MS);
+
+  if (deadline - Date.now() <= 0) {
+    if (model.createTimeoutError) {
+      throw model.createTimeoutError();
+    }
+    const timeoutError = new Error('The AI analysis timed out. The service took too long to respond, please try again.');
+    timeoutError.statusCode = 504;
+    timeoutError.status = 504;
+    timeoutError.code = 'GATEWAY_TIMEOUT';
+    timeoutError.isTimeout = true;
+    throw timeoutError;
+  }
+
   let prompt = buildPrompt(resumeText, jobDescription);
   
   if (isRetry) {
@@ -65,7 +85,7 @@ const analyzeResumeText = async (resumeText, jobDescription = null, isRetry = fa
 
   let result;
   try {
-    result = await model.generateContent(prompt);
+    result = await model.generateContent(prompt, { ...options, deadline });
   } catch (apiError) {
     throw apiError;
   }
@@ -95,8 +115,19 @@ const analyzeResumeText = async (resumeText, jobDescription = null, isRetry = fa
     return parsed;
   } catch (parseOrValidationError) {
     if (!isRetry) {
+      if (deadline - Date.now() <= 0) {
+        if (model.createTimeoutError) {
+          throw model.createTimeoutError();
+        }
+        const timeoutError = new Error('The AI analysis timed out. The service took too long to respond, please try again.');
+        timeoutError.statusCode = 504;
+        timeoutError.status = 504;
+        timeoutError.code = 'GATEWAY_TIMEOUT';
+        timeoutError.isTimeout = true;
+        throw timeoutError;
+      }
       console.warn(`Gemini JSON parse or validation failed (${parseOrValidationError.message}), retrying once...`);
-      return await analyzeResumeText(resumeText, jobDescription, true);
+      return await analyzeResumeText(resumeText, jobDescription, true, { ...options, deadline });
     } else {
       throw new Error("Failed to parse Gemini analysis as valid JSON after retry.");
     }
