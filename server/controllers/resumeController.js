@@ -189,7 +189,7 @@ const getResumeRewrites = async (req, res) => {
     const resume = req.resume || (await Resume.findOne({ _id: id, user: req.user.id }));
 
     if (!resume) {
-      return res.status(404).json({ success: false, message: 'Resume not found' });
+      return res.status(404).json({ success: false, code: 'NOT_FOUND', message: 'Resume not found' });
     }
 
     // If rewrites already exist and regenerate is not requested, return them
@@ -208,6 +208,7 @@ const getResumeRewrites = async (req, res) => {
     if (activeGenerations.has(resumeIdStr)) {
       return res.status(409).json({
         success: false,
+        code: 'IN_PROGRESS',
         message: 'Rewrite generation is already in progress for this resume. Please wait.'
       });
     }
@@ -248,7 +249,7 @@ const getResumeRewrites = async (req, res) => {
       );
 
       if (!updatedResume) {
-        return res.status(404).json({ success: false, message: 'Resume not found' });
+        return res.status(404).json({ success: false, code: 'NOT_FOUND', message: 'Resume not found' });
       }
 
       return res.status(200).json({
@@ -265,10 +266,11 @@ const getResumeRewrites = async (req, res) => {
     console.error('Error generating rewrites:', error);
 
     if (error.name === 'CastError') {
-      return res.status(404).json({ success: false, message: 'Resume not found' });
+      return res.status(404).json({ success: false, code: 'NOT_FOUND', message: 'Resume not found' });
     }
 
     let statusCode = error.statusCode || error.status || 500;
+    let code = 'SERVER_ERROR';
     let message = error.message || 'Error generating rewrite suggestions';
 
     const lower = (message + ' ' + (error.stack || '')).toLowerCase();
@@ -281,6 +283,7 @@ const getResumeRewrites = async (req, res) => {
       error.code === 'ETIMEDOUT'
     ) {
       statusCode = 504;
+      code = 'TIMEOUT';
       message = error.statusCode === 504 ? error.message : 'The AI analysis timed out. The service took too long to respond, please try again.';
     } else if (
       lower.includes('429') ||
@@ -289,12 +292,14 @@ const getResumeRewrites = async (req, res) => {
       lower.includes('too many requests')
     ) {
       statusCode = 429;
+      code = 'AI_BUSY';
       message = 'The AI service is busy, try again in a minute';
     } else if (
       lower.includes('503') ||
       lower.includes('service unavailable')
     ) {
       statusCode = 503;
+      code = 'AI_BUSY';
       message = 'The AI service is busy, try again in a minute';
     } else if (
       lower.includes('api_key_invalid') ||
@@ -303,6 +308,7 @@ const getResumeRewrites = async (req, res) => {
       lower.includes('permission_denied')
     ) {
       statusCode = 503;
+      code = 'AI_BUSY';
       message = 'Analysis unavailable';
     } else if (
       lower.includes('generativelanguage.googleapis.com') ||
@@ -310,14 +316,21 @@ const getResumeRewrites = async (req, res) => {
       lower.includes('googlegenerativeai')
     ) {
       statusCode = 500;
+      code = 'SERVER_ERROR';
       message = 'Analysis unavailable';
     } else if (statusCode === 422 || error.code === 'REWRITES_VALIDATION_FAILED') {
       statusCode = 422;
+      code = 'VALIDATION_FAILED';
       message = error.message || 'Could not generate verifiable rewrite suggestions from your resume. Please try again.';
+    } else {
+      statusCode = 500;
+      code = 'SERVER_ERROR';
+      message = 'Error generating rewrite suggestions';
     }
 
     res.status(statusCode).json({
       success: false,
+      code,
       message,
       ...(process.env.NODE_ENV !== 'production' && error.stack ? { stack: error.stack } : {})
     });
