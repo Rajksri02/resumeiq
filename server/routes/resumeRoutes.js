@@ -30,6 +30,7 @@ const uploadLimiter = rateLimit({
 const rewritesLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
+  skipFailedRequests: true,
   keyGenerator: (req) => req.user?.id || req.user?._id?.toString() || ipKeyGenerator(req),
   standardHeaders: true,
   legacyHeaders: false,
@@ -52,6 +53,7 @@ const checkRewriteCache = async (req, res, next) => {
         return res.status(200).json({
           success: true,
           rewrites: resume.rewrites || [],
+          metricPrompts: resume.metricPrompts || [],
           note: resume.rewritesNote || undefined,
           rewritesGeneratedAt: resume.rewritesGeneratedAt
         });
