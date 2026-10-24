@@ -36,7 +36,15 @@ const rewritesLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
+    code: 'RATE_LIMITED',
     message: 'Rewrite limit reached: maximum 5 requests per 10 minutes. Please try again later.'
+  },
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json({
+      success: false,
+      code: 'RATE_LIMITED',
+      message: 'Rewrite limit reached: maximum 5 requests per 10 minutes. Please try again later.'
+    });
   }
 });
 
@@ -47,7 +55,7 @@ const checkRewriteCache = async (req, res, next) => {
     try {
       const resume = await Resume.findOne({ _id: req.params.id, user: req.user.id });
       if (!resume) {
-        return res.status(404).json({ success: false, message: 'Resume not found' });
+        return res.status(404).json({ success: false, code: 'NOT_FOUND', message: 'Resume not found' });
       }
       if (resume.rewritesGeneratedAt) {
         return res.status(200).json({
@@ -62,9 +70,9 @@ const checkRewriteCache = async (req, res, next) => {
       req.resume = resume;
     } catch (err) {
       if (err.name === 'CastError') {
-        return res.status(404).json({ success: false, message: 'Resume not found' });
+        return res.status(404).json({ success: false, code: 'NOT_FOUND', message: 'Resume not found' });
       }
-      return res.status(500).json({ success: false, message: 'Failed to retrieve resume' });
+      return res.status(500).json({ success: false, code: 'SERVER_ERROR', message: 'Failed to retrieve resume' });
     }
   }
   next();
