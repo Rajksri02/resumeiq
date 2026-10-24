@@ -193,10 +193,11 @@ const getResumeRewrites = async (req, res) => {
     }
 
     // If rewrites already exist and regenerate is not requested, return them
-    if (!shouldRegenerate && resume.rewrites && resume.rewrites.length > 0) {
+    if (!shouldRegenerate && resume.rewritesGeneratedAt) {
       return res.status(200).json({
         success: true,
-        rewrites: resume.rewrites,
+        rewrites: resume.rewrites || [],
+        note: resume.rewritesNote || undefined,
         rewritesGeneratedAt: resume.rewritesGeneratedAt
       });
     }
@@ -217,7 +218,7 @@ const getResumeRewrites = async (req, res) => {
       const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || 55000;
       const deadline = requestStartTime + TOTAL_TIMEOUT_MS;
 
-      const rewrites = await generateRewrites(
+      const rewritesResult = await generateRewrites(
         {
           extractedText: resume.extractedText,
           weaknesses: resume.analysis?.weaknesses || [],
@@ -228,13 +229,18 @@ const getResumeRewrites = async (req, res) => {
         { deadline }
       );
 
+      const rewrites = Array.isArray(rewritesResult) ? rewritesResult : (rewritesResult.rewrites || []);
+      const note = rewritesResult.note || '';
+
       resume.rewrites = rewrites;
+      resume.rewritesNote = note;
       resume.rewritesGeneratedAt = new Date();
       await resume.save();
 
       return res.status(200).json({
         success: true,
         rewrites: resume.rewrites,
+        note: resume.rewritesNote || undefined,
         rewritesGeneratedAt: resume.rewritesGeneratedAt
       });
     } finally {
