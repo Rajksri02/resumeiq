@@ -197,6 +197,7 @@ const getResumeRewrites = async (req, res) => {
       return res.status(200).json({
         success: true,
         rewrites: resume.rewrites || [],
+        metricPrompts: resume.metricPrompts || [],
         note: resume.rewritesNote || undefined,
         rewritesGeneratedAt: resume.rewritesGeneratedAt
       });
@@ -230,18 +231,32 @@ const getResumeRewrites = async (req, res) => {
       );
 
       const rewrites = Array.isArray(rewritesResult) ? rewritesResult : (rewritesResult.rewrites || []);
+      const metricPrompts = rewritesResult.metricPrompts || [];
       const note = rewritesResult.note || '';
 
-      resume.rewrites = rewrites;
-      resume.rewritesNote = note;
-      resume.rewritesGeneratedAt = new Date();
-      await resume.save();
+      const updatedResume = await Resume.findOneAndUpdate(
+        { _id: id, user: req.user.id },
+        {
+          $set: {
+            rewrites,
+            metricPrompts,
+            rewritesNote: note,
+            rewritesGeneratedAt: new Date()
+          }
+        },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedResume) {
+        return res.status(404).json({ success: false, message: 'Resume not found' });
+      }
 
       return res.status(200).json({
         success: true,
-        rewrites: resume.rewrites,
-        note: resume.rewritesNote || undefined,
-        rewritesGeneratedAt: resume.rewritesGeneratedAt
+        rewrites: updatedResume.rewrites,
+        metricPrompts: updatedResume.metricPrompts,
+        note: updatedResume.rewritesNote || undefined,
+        rewritesGeneratedAt: updatedResume.rewritesGeneratedAt
       });
     } finally {
       activeGenerations.delete(resumeIdStr);
