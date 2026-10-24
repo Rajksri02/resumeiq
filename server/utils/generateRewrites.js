@@ -32,11 +32,14 @@ CRITICAL QUALITY & GROUNDING RULES:
    - "improved" must contain NO placeholders ([X%], [N], etc.) and NO invented metrics, numbers, percentages, employers, job titles, or unstated outcomes.
    - Every number or percentage in "improved" MUST also appear in "original". It must be safe to paste as written.
 
-6. OPTIONAL METRIC PROMPT:
-   - For EVERY bullet that describes a feature, system, or pipeline and has no quantified outcome, provide a one-line prompt in "optionalMetric" naming 1-2 specific facts the person could add IF they know them (scale, speed, size, users, time saved).
-   - Example: "If you measured generation times, you could add it (e.g. '...generating formatted documents in under 3 seconds')."
-   - If the original bullet already includes a quantified number or if no metric applies, set "optionalMetric" to an empty string ("").
-   - Provide this for every unquantified feature/pipeline bullet without an arbitrary quantity limit.
+6. DECOUPLED METRIC PROMPTS ("metricPrompts"):
+   - Separately from rewrites, identify bullets from the resume that describe a feature, system, or pipeline with NO quantified outcome, whether or not the bullet needs rewording.
+   - For each, provide an item in "metricPrompts": { "section": "...", "original": "...", "prompt": "..." }.
+   - The "prompt" names 1-2 specific facts the author could add IF they know them (e.g. scale, speed, latency, volume, user count, time saved).
+   - These are suggestions to the user, NEVER inserted into the improved text.
+   - Example prompt: "If you measured generation times, you could add it (e.g. '...generating formatted documents in under 3 seconds')."
+   - Output up to 6 items for "metricPrompts" (cap at 6 items).
+   - "original" MUST be copied 100% VERBATIM from the resume text.
 
 7. PRESERVE TITLES & SENIORITY:
    - Never change job titles, role names, or seniority words.
@@ -48,9 +51,15 @@ Respond ONLY with a valid JSON object matching this schema:
     {
       "section": "string (e.g. Experience, Projects, Extracurricular)",
       "original": "string (verbatim substring from the resume)",
-      "improved": "string (grounded rewrite safe to paste as written)",
-      "reason": "string (names the concrete defect fixed; no generic fluff)",
-      "optionalMetric": "string (one-line prompt naming 1-2 facts if unquantified, else \"\")"
+      "improved": "string (grounded rewrite safe to paste as written, NO placeholders)",
+      "reason": "string (names the concrete defect fixed; no generic fluff)"
+    }
+  ],
+  "metricPrompts": [
+    {
+      "section": "string (e.g. Experience, Projects)",
+      "original": "string (verbatim substring from the resume)",
+      "prompt": "string (short advisory prompt suggesting 1-2 facts if known)"
     }
   ],
   "note": "string (optional explanation if few or zero rewrites are needed, otherwise \"\")"
@@ -253,6 +262,25 @@ const validateRewriteItem = (item, extractedText, normalizedResume, cleanedResum
   return { valid: true };
 };
 
+/**
+ * Validates a single metricPrompt item.
+ * "original" must be verified verbatim in the resume text.
+ */
+const validateMetricPromptItem = (item, normalizedResume, cleanedResume) => {
+  const original = item?.original;
+  const prompt = item?.prompt;
+
+  if (!original || typeof original !== 'string' || !prompt || typeof prompt !== 'string' || !prompt.trim()) {
+    return { valid: false, reason: 'dropped metricPrompt: missing original or prompt field' };
+  }
+
+  if (!isOriginalInResume(original, normalizedResume, cleanedResume)) {
+    return { valid: false, reason: 'dropped metricPrompt: original not found verbatim in resume text' };
+  }
+
+  return { valid: true };
+};
+
 const generateRewrites = async (
   { extractedText, weaknesses = [], suggestions = [], jobDescription = null },
   isRetry = false,
@@ -289,7 +317,7 @@ const generateRewrites = async (
 
   if (isRetry) {
     prompt += `\n\nIMPORTANT: All previous rewrite candidates were rejected by strict server-side grounding checks. Ensure that:
-- Every "original" is copied 100% VERBATIM from the resume text.
+- Every "original" in both "rewrites" and "metricPrompts" is copied 100% VERBATIM from the resume text.
 - "improved" contains NO bracket placeholders ([ ]), NO invented numbers or metrics, and NO technologies/tools that do not appear in the resume.
 - Keep every technology token from the original in the improved bullet.
 - Keep verbs aligned with the actual original scope without inflation or downgrading.`;
@@ -327,6 +355,7 @@ const generateRewrites = async (
     const cleanedResume = cleanForMatching(extractedText);
 
     const validRewrites = [];
+    const validMetricPrompts = [];
     const droppedItems = [];
 
     for (const item of parsed.rewrites) {
@@ -335,6 +364,7 @@ const generateRewrites = async (
       if (!validation.valid) {
         console.warn(`[Rewrites Grounding] ${validation.reason} | original: "${normalizeWhitespace(item?.original).slice(0, 50)}..."`);
         droppedItems.push({
+          type: 'rewrite',
           original: item?.original || '',
           improved: item?.improved || '',
           reason: validation.reason
@@ -346,12 +376,38 @@ const generateRewrites = async (
         section: String(item.section || 'Experience').slice(0, 100).trim(),
         original: String(item.original).slice(0, 1000).trim(),
         improved: String(item.improved).slice(0, 1000).trim(),
-        reason: String(item.reason || '').slice(0, 500).trim(),
-        optionalMetric: String(item.optionalMetric || '').slice(0, 300).trim()
+        reason: String(item.reason || '').slice(0, 500).trim()
       });
 
       if (validRewrites.length === 8) {
         break;
+      }
+    }
+
+    if (Array.isArray(parsed.metricPrompts)) {
+      for (const item of parsed.metricPrompts) {
+        const validation = validateMetricPromptItem(item, normalizedResume, cleanedResume);
+
+        if (!validation.valid) {
+          console.warn(`[MetricPrompt Grounding] ${validation.reason} | original: "${normalizeWhitespace(item?.original).slice(0, 50)}..."`);
+          droppedItems.push({
+            type: 'metricPrompt',
+            original: item?.original || '',
+            prompt: item?.prompt || '',
+            reason: validation.reason
+          });
+          continue;
+        }
+
+        validMetricPrompts.push({
+          section: String(item.section || 'Projects').slice(0, 100).trim(),
+          original: String(item.original).slice(0, 1000).trim(),
+          prompt: String(item.prompt).slice(0, 300).trim()
+        });
+
+        if (validMetricPrompts.length === 6) {
+          break;
+        }
       }
     }
 
@@ -364,11 +420,19 @@ const generateRewrites = async (
     const note = String(parsed.note || '').slice(0, 500).trim();
 
     if (options.includeDropped) {
-      return { rewrites: validRewrites, dropped: droppedItems, note };
+      return {
+        rewrites: validRewrites,
+        metricPrompts: validMetricPrompts,
+        dropped: droppedItems,
+        note
+      };
     }
 
-    validRewrites.note = note;
-    return validRewrites;
+    return {
+      rewrites: validRewrites,
+      metricPrompts: validMetricPrompts,
+      note
+    };
   } catch (parseOrValidationError) {
     if (!isRetry) {
       if (deadline - Date.now() <= 0) {
@@ -402,6 +466,7 @@ module.exports = {
   generateRewrites,
   buildRewritePrompt,
   validateRewriteItem,
+  validateMetricPromptItem,
   checkNumbers,
   checkTechTokens,
   checkRetainedTechTokens

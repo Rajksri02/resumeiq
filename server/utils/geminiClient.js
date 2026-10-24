@@ -212,8 +212,25 @@ const modelWrapper = {
 
     const outcome1 = res1.outcome;
 
-    // Fail immediately on quota (429) or timeout
-    if (outcome1 === '429' || outcome1 === 'timeout') {
+    // Fail immediately on timeout
+    if (outcome1 === 'timeout') {
+      throw handleGeminiError(res1.error, PRIMARY_MODEL);
+    }
+
+    // On quota (429), try fallback model if configured
+    if (outcome1 === '429') {
+      if (FALLBACK_MODEL) {
+        remainingMs = getRemainingMs();
+        if (remainingMs <= 0) {
+          throw createTimeoutError();
+        }
+        console.warn(`[Gemini API] Primary model ${PRIMARY_MODEL} quota exceeded (429). Attempting fallback model: ${FALLBACK_MODEL} (${remainingMs}ms remaining)`);
+        const resFallback = await executeAttempt(FALLBACK_MODEL, prompt, 2, remainingMs, options);
+        if (resFallback.success) {
+          return resFallback.response;
+        }
+        throw handleGeminiError(resFallback.error, FALLBACK_MODEL);
+      }
       throw handleGeminiError(res1.error, PRIMARY_MODEL);
     }
 
