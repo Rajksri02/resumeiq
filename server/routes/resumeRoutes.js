@@ -48,10 +48,11 @@ const checkRewriteCache = async (req, res, next) => {
       if (!resume) {
         return res.status(404).json({ success: false, message: 'Resume not found' });
       }
-      if (resume.rewrites && resume.rewrites.length > 0) {
+      if (resume.rewritesGeneratedAt) {
         return res.status(200).json({
           success: true,
-          rewrites: resume.rewrites,
+          rewrites: resume.rewrites || [],
+          note: resume.rewritesNote || undefined,
           rewritesGeneratedAt: resume.rewritesGeneratedAt
         });
       }
