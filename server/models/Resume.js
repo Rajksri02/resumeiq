@@ -56,6 +56,11 @@ const resumeSchema = new mongoose.Schema({
       optionalMetric: { type: String, trim: true, default: '' },
     }
   ],
+  rewritesNote: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   rewritesGeneratedAt: {
     type: Date,
   },
