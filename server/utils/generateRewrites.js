@@ -41,10 +41,22 @@ CRITICAL QUALITY & GROUNDING RULES:
 5. DECOUPLED METRIC PROMPTS ("metricPrompts"):
    - Separately from rewrites, identify bullets from the resume that describe a feature, system, or pipeline with NO quantified outcome, whether or not the bullet needs rewording.
    - For each, provide an item in "metricPrompts": { "section": "...", "original": "...", "prompt": "..." }.
-   - The "prompt" names 1-2 specific facts the author could add IF they know them (e.g. scale, speed, latency, volume, user count, time saved).
-   - These are suggestions to the user, NEVER inserted into the improved text.
-   - NO DIGITS IN PROMPTS: The "prompt" field must NEVER contain digits or actual numbers. Any examples MUST use bracketed placeholders such as "[N] seconds", "[X]%", "[N] FPS", "[N] ms", "[N] users".
-   - Example prompt: "If you measured PDF/DOCX generation times or polling efficiency, you could specify the duration (e.g. 'generating formatted documents in under [N] seconds')."
+   - ONLY SUGGEST METRICS THAT FIT THE KIND OF WORK DESCRIBED:
+     * For personal, student, or hackathon projects: suggest metrics like response or build time, test coverage, number of endpoints or features, bundle size, or competition ranking.
+     * Do NOT suggest users, adoption, accuracy, revenue, or scale unless the bullet already explicitly mentions them.
+   - PHRASING FORMAT — QUESTION FIRST, THEN FILL-IN-THE-BLANK WITH ONE PLACEHOLDER:
+     * Phrase each prompt strictly as a question first, followed by a fill-in-the-blank template containing exactly one placeholder.
+     * Required format: "<Question>? If so: '...[fill-in-the-blank with one placeholder]...'"
+     * Example: "Did you time document generation? If so: '...generating documents in [N] seconds.'"
+     * Example: "Did you measure test coverage? If so: '...achieving [N]% test coverage.'"
+     * Example: "Did you benchmark endpoint response time? If so: '...responding in under [N] ms.'"
+     * Example: "Did you track bundle size? If so: '...reducing bundle size to [N] KB.'"
+     * Example: "Did you count endpoints or features built? If so: '...building [N] REST API endpoints.'"
+   - NEVER SUGGEST A BEFORE/AFTER IMPROVEMENT PERCENTAGE:
+     * NEVER suggest a before/after improvement percentage (such as "reducing X by [X]%" or "improving performance by [X]%").
+     * Always use a single measured value instead (e.g. "...in under [N] ms", "...with [N]% test coverage", "...generating documents in [N] seconds").
+   - NO DIGITS IN PROMPTS:
+     * The "prompt" field must NEVER contain digits or actual numbers (0-9). Any example MUST use exclusively a single placeholder such as "[N]" or "[N]%".
    - Output up to 6 items for "metricPrompts" (cap at 6 items).
    - "original" MUST be copied 100% VERBATIM from the resume text.
 
@@ -66,7 +78,7 @@ Respond ONLY with a valid JSON object matching this schema:
     {
       "section": "string (e.g. Experience, Projects)",
       "original": "string (verbatim substring from the resume)",
-      "prompt": "string (short advisory prompt suggesting 1-2 facts if known; NO digits, use [N] or [X]% placeholders)"
+      "prompt": "string (question first, then fill-in-the-blank with ONE placeholder e.g. 'Did you time document generation? If so: \\'...generating documents in [N] seconds.\\''; NO digits, NO before/after improvement percentages)"
     }
   ],
   "note": "string (explanation ONLY if zero rewrites were needed, otherwise empty \"\")"
@@ -286,7 +298,7 @@ const sanitizeMetricPrompt = (prompt) => {
     }
     // Safety net: if digits remain outside parentheticals, replace with placeholders
     if (/\d/.test(str)) {
-      str = str.replace(/\b\d+(?:\.\d+)?%/g, '[X]%')
+      str = str.replace(/\b\d+(?:\.\d+)?%/g, '[N]%')
                .replace(/\b\d+(?:\.\d+)?\+?/g, '[N]');
     }
   }
@@ -352,7 +364,8 @@ const generateRewrites = async (
 - Every "original" in both "rewrites" and "metricPrompts" is copied 100% VERBATIM from the resume text.
 - "improved" contains NO bracket placeholders ([ ]), NO invented numbers or metrics, and NO technologies/tools that do not appear in the resume.
 - Keep every technology token from the original in the improved bullet.
-- Keep verbs aligned with the actual original scope without inflation or downgrading.`;
+- Keep verbs aligned with the actual original scope without inflation or downgrading.
+- Every metricPrompt must be a question first, then a fill-in-the-blank with one placeholder (e.g. "Did you time document generation? If so: '...generating documents in [N] seconds.'"), containing NO digits, NO before/after improvement percentages, and only metrics appropriate for the work described.`;
   }
 
   const thinkingLevel = options.thinkingLevel || 'low';
