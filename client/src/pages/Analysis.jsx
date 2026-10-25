@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import ScoreGauge from '../components/ScoreGauge';
 import SkillBadge from '../components/SkillBadge';
 import FeedbackAccordion from '../components/FeedbackAccordion';
+import RewriteSuggestions from '../components/RewriteSuggestions';
 
 const Analysis = () => {
   const { id } = useParams();
@@ -255,6 +256,24 @@ const Analysis = () => {
                 ))}
               </div>
             </div>
+
+            {/* Rewrite Suggestions */}
+            <RewriteSuggestions
+              resumeId={id}
+              initialData={{
+                rewrites: analysis.rewrites,
+                metricPrompts: analysis.metricPrompts,
+                rewritesNote: analysis.rewritesNote,
+                note: analysis.note || analysis.rewritesNote,
+                rewritesGeneratedAt: analysis.rewritesGeneratedAt
+              }}
+              onUpdate={(updatedData) => {
+                setAnalysis(prev => ({
+                  ...prev,
+                  ...updatedData
+                }));
+              }}
+            />
 
           </div>
         </div>
