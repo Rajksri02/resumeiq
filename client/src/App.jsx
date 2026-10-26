@@ -13,6 +13,45 @@ import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 
+import { ThemeProvider, useTheme } from './context/ThemeContext';
+
+const ThemedToaster = () => {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+
+  return (
+    <Toaster
+      position="top-right"
+      toastOptions={{
+        duration: 4000,
+        style: {
+          background: isDark ? '#0f172a' : '#ffffff',
+          color: isDark ? '#f8fafc' : '#0f172a',
+          border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+          fontFamily: 'monospace',
+          fontSize: '13px',
+          borderRadius: '0.75rem',
+          boxShadow: isDark
+            ? '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
+            : '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+        },
+        success: {
+          iconTheme: {
+            primary: '#10b981',
+            secondary: isDark ? '#0f172a' : '#ffffff',
+          },
+        },
+        error: {
+          iconTheme: {
+            primary: '#f43f5e',
+            secondary: isDark ? '#0f172a' : '#ffffff',
+          },
+        },
+      }}
+    />
+  );
+};
+
 const RootRedirect = () => {
   const { user, loading } = useAuth();
   
@@ -24,34 +63,9 @@ const RootRedirect = () => {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#0f172a',
-              color: '#f8fafc',
-              border: '1px solid #334155',
-              fontFamily: 'monospace',
-              fontSize: '13px',
-              borderRadius: '0.75rem',
-              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
-            },
-            success: {
-              iconTheme: {
-                primary: '#10b981',
-                secondary: '#0f172a',
-              },
-            },
-            error: {
-              iconTheme: {
-                primary: '#f43f5e',
-                secondary: '#0f172a',
-              },
-            },
-          }}
-        />
+      <ThemeProvider>
+        <ThemedToaster />
+        <AuthProvider>
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -87,6 +101,7 @@ function App() {
           </Routes>
         </Router>
       </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
