@@ -61,18 +61,18 @@ flowchart TD
     Client["Client (React + Vite SPA)"]
     Proxy["CDN / Edge (Vercel / Netlify)"]
     API["Express API Server (Render / Railway)"]
-    DB[(MongoDB Atlas)]
+    DB[("MongoDB Atlas")]
     Gemini["Google Gemini API"]
     SMTP["SMTP Service (SendGrid / Brevo / Mailtrap)"]
     Uploads["Ephemeral Storage (/uploads)"]
 
-    Client -->|Static Assets & SPA Rewrites| Proxy
-    Client -->|REST API Requests (VITE_API_URL)| API
-    API -->|Authenticate & Store Analysis| DB
-    API -->|Save Temp File| Uploads
-    Uploads -->|Parse Text & Auto-Delete| API
-    API -->|Analyze Resume Text| Gemini
-    API -->|Password Reset Token| SMTP
+    Client -->|"Static Assets & SPA Rewrites"| Proxy
+    Client -->|"REST API Requests (VITE_API_URL)"| API
+    API -->|"Authenticate & Store Analysis"| DB
+    API -->|"Save Temp File"| Uploads
+    Uploads -->|"Parse Text & Auto-Delete"| API
+    API -->|"Analyze Resume Text"| Gemini
+    API -->|"Password Reset Token"| SMTP
 ```
 
 ---
