@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import ThemeToggle from '../components/ThemeToggle';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -35,20 +36,25 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans text-slate-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans text-slate-700 dark:text-slate-300 relative transition-colors duration-200">
+      {/* Top Floating Theme Toggle */}
+      <div className="absolute top-6 right-6">
+        <ThemeToggle showLabel={true} />
+      </div>
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
-        <h2 className="text-center text-3xl font-bold tracking-tight text-white">Forgot Password</h2>
-        <p className="mt-2 text-center text-sm text-slate-400">Enter your email to receive a password reset link.</p>
+        <h2 className="text-center text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Forgot Password</h2>
+        <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">Enter your email to receive a password reset link.</p>
       </div>
       
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-slate-800 py-10 px-8 border border-slate-700 shadow-xl sm:px-10 rounded-2xl">
-          {message && <div className="mb-4 bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-400 px-4 py-3 font-bold text-sm rounded-r-md">{message}</div>}
-          {error && <div className="mb-4 bg-red-500/10 border-l-4 border-red-500 text-red-400 px-4 py-3 font-bold text-sm rounded-r-md">{error}</div>}
+        <div className="bg-white dark:bg-slate-800 py-10 px-8 border border-slate-200 dark:border-slate-700 shadow-xl sm:px-10 rounded-2xl transition-all">
+          {message && <div className="mb-4 bg-emerald-50 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-700 dark:text-emerald-400 px-4 py-3 font-bold text-sm rounded-r-md">{message}</div>}
+          {error && <div className="mb-4 bg-rose-50 dark:bg-red-500/10 border-l-4 border-rose-500 text-rose-700 dark:text-red-400 px-4 py-3 font-bold text-sm rounded-r-md">{error}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-bold uppercase tracking-wider text-slate-400 mb-2 font-mono">Email Address</label>
+              <label htmlFor="email" className="block text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-2 font-mono">Email Address</label>
               <div className="mt-1">
                 <input
                   type="email"
@@ -56,7 +62,7 @@ const ForgotPassword = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="appearance-none block w-full px-4 py-3 border border-slate-600 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent sm:text-sm transition-colors bg-slate-900 text-white rounded-xl"
+                  className="appearance-none block w-full px-4 py-3 border border-slate-300 dark:border-slate-600 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent sm:text-sm transition-colors bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 rounded-xl"
                   placeholder="you@example.com"
                 />
               </div>
@@ -65,14 +71,14 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800 transition-colors rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.2)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-800 transition-colors rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.25)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {isLoading ? '[ SENDING... ]' : '[ SEND RESET LINK ]'}
               </button>
             </div>
           </form>
-          <div className="mt-8 pt-6 border-t border-slate-700 text-center">
-            <Link to="/login" className="text-sm font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:underline">Back to Login</Link>
+          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 text-center">
+            <Link to="/login" className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:underline">Back to Login</Link>
           </div>
         </div>
       </div>
