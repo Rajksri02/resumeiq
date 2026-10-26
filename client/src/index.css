@@ -4,7 +4,23 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light dark;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+  }
+
+  :root:not(.dark) {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-slate-950 text-slate-300 antialiased;
+    @apply bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-300 antialiased transition-colors duration-200;
   }
 }
