@@ -279,7 +279,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
   return (
     <section 
       aria-labelledby="rewrites-heading"
-      className="bg-slate-800 shadow-xl border border-slate-700 p-6 sm:p-8 rounded-2xl relative overflow-hidden"
+      className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 rounded-2xl relative overflow-hidden transition-all"
     >
       {/* Screen Reader Live Announcement */}
       <div aria-live="polite" className="sr-only">
@@ -287,18 +287,18 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
       </div>
 
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-700/80 gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-200 dark:border-slate-700/80 gap-4 mb-8">
         <div>
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
               ATS_OPTIMIZATION_MODULE
             </span>
           </div>
-          <h2 id="rewrites-heading" className="text-2xl font-bold text-white mt-1">
+          <h2 id="rewrites-heading" className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
             Rewrite Suggestions
           </h2>
-          <p className="text-sm text-slate-400 mt-1 font-sans">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 font-sans">
             Suggested edits built only from your resume's own text. Check each one before using it.
           </p>
         </div>
@@ -310,17 +310,17 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
               <button
                 type="button"
                 onClick={handleCopyAll}
-                className="flex items-center space-x-2 px-3.5 py-2 text-xs font-mono font-bold text-slate-200 bg-slate-900/80 hover:bg-slate-900 border border-slate-700 hover:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="flex items-center space-x-2 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/80 dark:hover:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 title="Copy all improved bullets"
               >
                 {copiedAll ? (
                   <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                    <span className="text-emerald-400">COPIED_ALL</span>
+                    <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
+                    <span className="text-emerald-600 dark:text-emerald-400">COPIED_ALL</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3.5 h-3.5 text-slate-400" />
+                    <Copy className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>COPY ALL</span>
                   </>
                 )}
@@ -330,10 +330,10 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
             <button
               type="button"
               onClick={() => setShowConfirmRegenerate(true)}
-              className="flex items-center space-x-2 px-3.5 py-2 text-xs font-mono font-bold text-slate-300 hover:text-white bg-slate-700/50 hover:bg-slate-700 border border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              className="flex items-center space-x-2 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
               title="Regenerate suggestions"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+              <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
               <span>REGENERATE</span>
             </button>
           </div>
@@ -373,17 +373,17 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
 
       {/* STATE 5: ERROR HANDLING DISPLAY */}
       {errorState && !isGenerating && (
-        <div className="bg-slate-900/90 border border-amber-500/30 p-6 rounded-2xl mb-8">
+        <div className="bg-amber-50 dark:bg-slate-900/90 border border-amber-300 dark:border-amber-500/30 p-6 rounded-2xl mb-8">
           <div className="flex items-start space-x-4">
-            <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400 flex-shrink-0 mt-0.5">
+            <div className="p-2.5 bg-amber-100 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-bold text-white font-mono tracking-wide flex items-center space-x-2">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white font-mono tracking-wide flex items-center space-x-2">
                 <span>ERROR_STATUS:</span>
-                <span className="text-amber-400">{errorState.type}</span>
+                <span className="text-amber-600 dark:text-amber-400">{errorState.type}</span>
               </h3>
-              <p className="text-slate-300 text-sm mt-1.5 leading-relaxed font-sans">
+              <p className="text-slate-700 dark:text-slate-300 text-sm mt-1.5 leading-relaxed font-sans">
                 {errorState.message}
               </p>
 
@@ -392,7 +392,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
                 {errorState.type === 'NOT_FOUND' ? (
                   <Link
                     to="/dashboard"
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                    className="inline-flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>RETURN TO DASHBOARD</span>
@@ -419,21 +419,21 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
 
       {/* STATE 1: NOT GENERATED */}
       {!isGenerated && !isGenerating && !errorState && (
-        <div className="bg-slate-900/60 border border-slate-700/80 p-8 rounded-2xl text-center my-4">
-          <div className="inline-flex p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl mb-4">
+        <div className="bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/80 p-8 rounded-2xl text-center my-4">
+          <div className="inline-flex p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-2xl mb-4">
             <Sparkles className="w-8 h-8" />
           </div>
-          <h3 className="text-lg font-bold text-white mb-2">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
             AI Bullet Point Refinements
           </h3>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed mb-6 font-sans">
+          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto leading-relaxed mb-6 font-sans">
             Our audit engine reviews your resume bullets against executive ATS standards, eliminating passive openers, 
             wordy filler, and buried results. Every rewrite preserves 100% of your real technologies and never invents metrics.
           </p>
           <button
             type="button"
             onClick={() => handleGenerate(false)}
-            className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-3 font-mono font-bold text-sm tracking-wider uppercase rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
+            className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-3 font-mono font-bold text-sm tracking-wider uppercase rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900"
           >
             <Sparkles className="w-4 h-4" />
             <span>GENERATE REWRITES</span>
@@ -443,34 +443,34 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
 
       {/* STATE 4: EMPTY WITH NOTE ("Your bullets already read well") */}
       {isEmptyWithNote && !isGenerating && (
-        <div className="bg-slate-900/80 border border-emerald-500/30 p-6 sm:p-7 rounded-2xl mb-8">
+        <div className="bg-white dark:bg-slate-900/80 border border-emerald-300 dark:border-emerald-500/30 p-6 sm:p-7 rounded-2xl mb-8 shadow-sm">
           <div className="flex items-start space-x-4">
-            <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 flex-shrink-0 mt-0.5">
+            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5">
               <CheckCircle className="w-5 h-5" />
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-1">
-                <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">
+                <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
                   VERIFIED_AUDIT
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-white font-sans">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white font-sans">
                 Your bullets already read well
               </h3>
-              <p className="text-slate-400 text-sm mt-1 leading-relaxed font-sans">
+              <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 leading-relaxed font-sans">
                 The audit checklist did not detect any passive phrasing, internal redundancy, or subjective filler in your bullet points.
               </p>
 
               {/* AI NOTE Labelled Card */}
               {note && (
-                <div className="mt-4 bg-slate-950/70 border border-slate-800 p-4 rounded-xl">
+                <div className="mt-4 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 p-4 rounded-xl">
                   <div className="flex items-center space-x-2 mb-1.5">
-                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 bg-slate-200/80 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700">
                       AI NOTE
                     </span>
                     <span className="text-xs text-slate-500 font-mono">Expert Assessment</span>
                   </div>
-                  <p className="text-sm text-slate-300 italic font-sans leading-relaxed">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 italic font-sans leading-relaxed">
                     "{note}"
                   </p>
                 </div>
@@ -483,24 +483,24 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
       {/* STATE 3: RESULTS (ONE CARD PER REWRITE) */}
       {hasRewrites && !isGenerating && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-1">
+          <div className="flex items-center justify-between text-xs font-mono text-slate-500 dark:text-slate-400 px-1">
             <span>SHOWING {rewrites.length} TARGETED REWRITE{rewrites.length > 1 ? 'S' : ''}</span>
-            <span className="text-emerald-400">CHECKED_AGAINST_YOUR_TEXT</span>
+            <span className="text-emerald-600 dark:text-emerald-400">CHECKED_AGAINST_YOUR_TEXT</span>
           </div>
 
           <div className="space-y-6">
             {rewrites.map((item, idx) => (
               <div 
                 key={idx}
-                className="bg-slate-900 border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-md transition-all hover:border-slate-600"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-600"
               >
                 {/* Card Top: Section Tag & Copy Button */}
-                <div className="flex items-center justify-between pb-4 border-b border-slate-800/80 mb-4">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/80 mb-4">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-800/90 px-2.5 py-1 rounded-lg border border-slate-700">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/90 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
                       {item.section || 'SECTION'}
                     </span>
-                    <span className="text-xs font-mono text-slate-500 font-semibold">
+                    <span className="text-xs font-mono text-slate-400 dark:text-slate-500 font-semibold">
                       #{idx + 1}
                     </span>
                   </div>
@@ -508,17 +508,17 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
                   <button
                     type="button"
                     onClick={() => handleCopySingle(item.improved, idx)}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                     title="Copy improved bullet to clipboard"
                   >
                     {copiedIndex === idx ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                        <span className="text-emerald-400">COPIED</span>
+                        <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
+                        <span className="text-emerald-600 dark:text-emerald-400">COPIED</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="w-3.5 h-3.5 text-slate-400" />
+                        <Copy className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                         <span>COPY</span>
                       </>
                     )}
@@ -528,27 +528,27 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
                 {/* BEFORE & AFTER BLOCKS */}
                 <div className="space-y-4">
                   {/* BEFORE Block */}
-                  <div className="bg-slate-950/70 border border-slate-800/90 rounded-xl p-4">
+                  <div className="bg-amber-50/60 dark:bg-slate-950/70 border border-amber-200 dark:border-slate-800/90 rounded-xl p-4">
                     <div className="flex items-center space-x-2 mb-2">
-                      <span className="text-[11px] font-mono font-bold text-amber-400 uppercase tracking-widest bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                      <span className="text-[11px] font-mono font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-500/20">
                         [BEFORE]
                       </span>
                       <span className="text-xs text-slate-500 font-mono">Original Resume Bullet</span>
                     </div>
-                    <p className="text-sm text-slate-300 font-sans leading-relaxed">
+                    <p className="text-sm text-slate-700 dark:text-slate-300 font-sans leading-relaxed">
                       {item.original}
                     </p>
                   </div>
 
                   {/* AFTER Block */}
-                  <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-4">
+                  <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-500/30 rounded-xl p-4">
                     <div className="flex items-center space-x-2 mb-2">
-                      <span className="text-[11px] font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30">
+                      <span className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest bg-emerald-100 dark:bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-500/30">
                         [AFTER]
                       </span>
-                      <span className="text-xs text-emerald-400/80 font-mono">Improved Technical Bullet</span>
+                      <span className="text-xs text-emerald-700/80 dark:text-emerald-400/80 font-mono">Improved Technical Bullet</span>
                     </div>
-                    <p className="text-sm text-white font-sans font-medium leading-relaxed">
+                    <p className="text-sm text-slate-900 dark:text-white font-sans font-medium leading-relaxed">
                       {item.improved}
                     </p>
                   </div>
@@ -556,11 +556,11 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
 
                 {/* Single-line Structural Reason */}
                 {item.reason && (
-                  <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-start space-x-2">
-                    <span className="text-xs font-mono text-slate-400 flex-shrink-0 font-bold uppercase tracking-wider">
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-start space-x-2">
+                    <span className="text-xs font-mono text-slate-500 dark:text-slate-400 flex-shrink-0 font-bold uppercase tracking-wider">
                       REASON:
                     </span>
-                    <span className="text-xs text-slate-300 font-sans leading-relaxed">
+                    <span className="text-xs text-slate-600 dark:text-slate-300 font-sans leading-relaxed">
                       {item.reason.trim().endsWith('.') ? item.reason.trim() : `${item.reason.trim()}.`}
                     </span>
                   </div>
@@ -573,15 +573,15 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
 
       {/* METRIC PROMPTS BLOCK (Shown whether or not rewrites exist, if metricPrompts exist) */}
       {isGenerated && hasMetricPrompts && !isGenerating && (
-        <div className="mt-10 pt-8 border-t border-slate-700/80">
+        <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-700/80">
           <div className="mb-6">
             <div className="flex items-center space-x-2 mb-1">
-              <Hash className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-lg font-bold text-white tracking-wide font-sans uppercase">
+              <Hash className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-wide font-sans uppercase">
                 ADD REAL NUMBERS
               </h3>
             </div>
-            <p className="text-xs text-slate-400 font-sans">
+            <p className="text-xs text-slate-600 dark:text-slate-400 font-sans">
               Only add figures you can verify. Examples show the format, not suggested values.
             </p>
           </div>
@@ -590,25 +590,25 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
             {metricPrompts.map((mp, i) => (
               <div 
                 key={i}
-                className="bg-slate-900 border border-slate-700/70 p-5 rounded-xl space-y-3"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 p-5 rounded-2xl space-y-3 shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                     {mp.section || 'PROJECTS'}
                   </span>
-                  <span className="text-xs font-mono text-slate-500 font-semibold">
+                  <span className="text-xs font-mono text-slate-400 dark:text-slate-500 font-semibold">
                     PROMPT #{i + 1}
                   </span>
                 </div>
 
                 {/* Original Bullet Context */}
-                <div className="text-xs text-slate-400 font-sans bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+                <div className="text-xs text-slate-600 dark:text-slate-400 font-sans bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800/80">
                   <span className="font-mono text-slate-500 font-bold mr-2 uppercase">[CONTEXT]</span>
                   {mp.original}
                 </div>
 
                 {/* Prompt with Monospace Bracket Highlights */}
-                <div className="text-sm text-slate-200 font-sans leading-relaxed pl-1 border-l-2 border-emerald-500">
+                <div className="text-sm text-slate-800 dark:text-slate-200 font-sans leading-relaxed pl-2 border-l-2 border-emerald-500">
                   {renderPromptWithHighlights(mp.prompt)}
                 </div>
               </div>
@@ -618,7 +618,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
       )}
 
       {/* Footnote */}
-      <div className="mt-8 pt-4 border-t border-slate-700/60 text-xs text-slate-500 leading-relaxed font-sans">
+      <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-700/60 text-xs text-slate-500 leading-relaxed font-sans">
         <p>
           * Suggestions are AI-generated based on structural patterns. Review and check every line for technical accuracy before using it on your resume. Scores and recommendations are estimates and do not guarantee a higher score in any real ATS.
         </p>
@@ -630,26 +630,26 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="confirm-modal-title"
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50"
         >
-          <div className="bg-slate-900 max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-700 rounded-2xl">
+          <div className="bg-white dark:bg-slate-900 max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-700 rounded-2xl transition-all">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-400">
+              <div className="p-2.5 bg-amber-100 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-amber-600 dark:text-amber-400">
                 <AlertCircle className="w-5 h-5" />
               </div>
-              <h3 id="confirm-modal-title" className="text-lg font-bold text-white font-sans">
+              <h3 id="confirm-modal-title" className="text-lg font-bold text-slate-900 dark:text-white font-sans">
                 Regenerate Rewrite Suggestions?
               </h3>
             </div>
-            <p className="text-slate-300 text-sm leading-relaxed mb-6 font-sans">
+            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6 font-sans">
               Regenerating will replace your currently saved suggestions and consume one request from your rate limit 
               (5 requests per 10 minutes).
             </p>
-            <div className="flex justify-end space-x-3 border-t border-slate-800 pt-4">
+            <div className="flex justify-end space-x-3 border-t border-slate-200 dark:border-slate-800 pt-4">
               <button
                 type="button"
                 onClick={() => setShowConfirmRegenerate(false)}
-                className="px-4 py-2 text-xs font-mono font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                className="px-4 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
               >
                 CANCEL
               </button>
