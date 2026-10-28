@@ -33,6 +33,7 @@ if (!fs.existsSync(uploadDir)) {
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const resumeRoutes = require('./routes/resumeRoutes');
+const { PRIMARY_MODEL, FALLBACK_MODEL, TOTAL_TIMEOUT_MS } = require('./utils/geminiClient');
 
 const app = express();
 
@@ -98,5 +99,6 @@ connectDB();
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Gemini config: primary=${PRIMARY_MODEL}, fallback=${FALLBACK_MODEL || 'none'}, timeout=${TOTAL_TIMEOUT_MS}`);
 });
 

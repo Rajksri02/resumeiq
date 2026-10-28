@@ -300,7 +300,9 @@ const modelWrapper = {
     throw handleGeminiError(res1.error, PRIMARY_MODEL);
   },
   createTimeoutError,
-  TOTAL_TIMEOUT_MS
+  TOTAL_TIMEOUT_MS,
+  PRIMARY_MODEL,
+  FALLBACK_MODEL
 };
 
 module.exports = modelWrapper;

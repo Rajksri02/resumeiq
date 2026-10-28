@@ -4,8 +4,10 @@ import axios from 'axios';
 import { UploadCloud, FileText, X, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ThemeToggle from '../components/ThemeToggle';
+import { useWarmup } from '../context/WarmupContext';
 
 const Upload = () => {
+  const { isWarmingUp } = useWarmup();
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -237,6 +239,13 @@ const Upload = () => {
               Submit your document for a structural audit and ATS compatibility check.
             </p>
           </div>
+
+          {isWarmingUp && (
+            <div className="mb-8 p-3.5 sm:p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center space-x-3 text-amber-700 dark:text-amber-400 text-xs sm:text-sm font-mono">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+              <span>Waking the server, the first request can take up to 30 seconds.</span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div>

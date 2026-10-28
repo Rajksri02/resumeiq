@@ -14,6 +14,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { WarmupProvider } from './context/WarmupContext';
 
 const ThemedToaster = () => {
   const { resolvedTheme } = useTheme();
@@ -64,43 +65,45 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <ThemedToaster />
-        <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/upload" 
-              element={
-                <ProtectedRoute>
-                  <Upload />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/analysis/:id" 
-              element={
-                <ProtectedRoute>
-                  <Analysis />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/" element={<RootRedirect />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Router>
-      </AuthProvider>
+        <WarmupProvider>
+          <ThemedToaster />
+          <AuthProvider>
+            <Router>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:token" element={<ResetPassword />} />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/upload" 
+                  element={
+                    <ProtectedRoute>
+                      <Upload />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/analysis/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <Analysis />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/" element={<RootRedirect />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Router>
+          </AuthProvider>
+        </WarmupProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
