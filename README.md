@@ -25,6 +25,24 @@
 
 ---
 
+## 📸 Application Screenshots
+
+### 📊 AI Audit Report & Remediation Analysis
+> Real-time ATS structural scoring, executive summary, strengths, critical issues, token extraction, and actionable remediation steps powered by Google Gemini.
+
+<p align="center">
+  <img src="./assets/screenshots/audit-report.jpg" alt="AI Audit Report & Remediation Analysis" width="100%" />
+</p>
+
+### 🔐 Terminal-Styled Authentication & 📂 Audit History Ledger
+
+| **Authentication & Access** | **Audit History & Tracker** |
+| :---: | :---: |
+| <img src="./assets/screenshots/auth-login.png" alt="ResumeIQ Authentication Screen" width="100%" /> | <img src="./assets/screenshots/audit-history.png" alt="ResumeIQ Audit History Dashboard" width="100%" /> |
+| *Terminal-inspired authentication & session management* | *Personalized candidate audit ledger and historical tracker* |
+
+---
+
 ## ✨ Key Features
 
 - **📄 Robust PDF Parsing & Ephemeral Storage:** Upload PDF resumes up to 5MB. Text is parsed into memory with `pdf-parse`, and temporary uploads are immediately unlinked from disk to ensure data privacy.
