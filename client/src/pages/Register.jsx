@@ -123,7 +123,7 @@ const Register = () => {
               Already have an account? Sign in.
             </Link>
             <Link to="/demo" className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 hover:underline uppercase tracking-wider">
-              View sample report →
+              View sample report
             </Link>
           </div>
         </div>

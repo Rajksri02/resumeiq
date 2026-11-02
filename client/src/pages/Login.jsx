@@ -43,15 +43,6 @@ const Login = () => {
         <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
           Sign in to access your audit ledger
         </p>
-        <div className="mt-4">
-          <Link
-            to="/demo"
-            className="inline-flex items-center px-4 py-1.5 text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/30 rounded-xl transition-all tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 shadow-xs"
-          >
-            <FileText className="w-3.5 h-3.5 mr-1.5" />
-            View sample report
-          </Link>
-        </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
