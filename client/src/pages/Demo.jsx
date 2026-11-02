@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Check, AlertTriangle, ArrowLeft, Sparkles, UserCheck, ShieldCheck } from 'lucide-react';
 import ScoreGauge from '../components/ScoreGauge';
 import SkillBadge from '../components/SkillBadge';
@@ -54,16 +54,16 @@ const SAMPLE_ANALYSIS = {
       'Ensure contact details remain at the top in simple text format with your verified LinkedIn and GitHub profiles.'
     ],
     sectionFeedback: {
-      SUMMARY:
+      summary:
         'Professional and concise. Clearly states 5+ years of full-stack engineering experience with target frontend and backend technologies. Avoid subjective buzzwords like "hard-working visionary".',
-      EXPERIENCE:
+      experience:
         'Recent role descriptions are well-organized with clear bullet hierarchies. Ensure older roles match the same active verb density and eliminate passive opening phrases.',
-      PROJECTS:
-        'Strong showcase of production-ready applications. Highlights modern state management and relational database schemas.',
-      SKILLS:
-        'Well-categorized into Languages, Frameworks, Databases, and Tools. Standard naming conventions ensure 100% token recognition across ATS parsers.',
-      EDUCATION:
-        'B.S. in Computer Science cleanly presented with graduation year and relevant coursework.'
+      education:
+        'B.S. in Computer Science cleanly presented with graduation year and relevant coursework.',
+      skills:
+        'Well-categorized into Languages, Frameworks, Databases, and Tools with standard naming conventions for clear token categorization across parsers.',
+      formatting:
+        'Clean single-column layout with consistent margins and standardized section headings. Free of tables, text boxes, or graphics that impede linear text extraction.'
     }
   },
   rewrites: [
@@ -92,7 +92,6 @@ const SAMPLE_ANALYSIS = {
 };
 
 const Demo = () => {
-  const navigate = useNavigate();
   const analysis = SAMPLE_ANALYSIS;
   const result = analysis.analysis;
   const hasSkillsData = result.matchedSkills?.length > 0 || result.missingSkills?.length > 0;
@@ -122,14 +121,13 @@ const Demo = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
+              <Link
+                to="/"
                 className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                title="Go back"
+                title="Return home"
               >
                 <ArrowLeft className="w-5 h-5" />
-              </button>
+              </Link>
               <div className="pl-4 border-l border-slate-200 dark:border-slate-700">
                 <div className="flex items-center space-x-2">
                   <h1 className="text-lg font-bold text-slate-900 dark:text-white truncate max-w-[180px] sm:max-w-md md:max-w-lg lg:max-w-xl">
@@ -170,7 +168,7 @@ const Demo = () => {
               </h2>
               <ScoreGauge score={result.atsScore} />
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-6 leading-relaxed border-t border-slate-200 dark:border-slate-700 pt-4">
-                This structural score determines your likelihood of passing standard Applicant Tracking Systems. Scores ≥ 75 indicate strong formatting and keyword density.
+                An AI estimate of how well your resume may parse and match a job. It is not a result from a real applicant tracking system.
               </p>
             </div>
 
@@ -213,7 +211,7 @@ const Demo = () => {
                 <span>Zero Storage &amp; Safe Demo</span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
-                This interactive demonstration is fully static and runs locally in your browser with no network transmission or API consumption.
+                This sample is static. It makes no analysis requests and uses no AI quota.
               </p>
             </div>
           </div>
