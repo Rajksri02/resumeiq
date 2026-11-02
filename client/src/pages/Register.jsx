@@ -118,9 +118,12 @@ const Register = () => {
             </div>
           </form>
           
-          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 text-center">
+          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-center">
             <Link to="/login" className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:underline">
               Already have an account? Sign in.
+            </Link>
+            <Link to="/demo" className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 hover:underline uppercase tracking-wider">
+              View sample report →
             </Link>
           </div>
         </div>

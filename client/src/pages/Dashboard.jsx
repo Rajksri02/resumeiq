@@ -79,7 +79,14 @@ const Dashboard = () => {
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Audit History</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Review past structural analyses and track score improvements.</p>
           </div>
-          <div className="mt-6 sm:mt-0">
+          <div className="mt-6 sm:mt-0 flex flex-wrap items-center gap-3">
+            <Link
+              to="/demo"
+              className="inline-flex items-center px-4 py-3 border border-slate-300 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors rounded-xl font-mono tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            >
+              <FileText className="-ml-1 mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              View sample report
+            </Link>
             <button
               onClick={() => navigate('/upload')}
               className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950 transition-all rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.25)] hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
@@ -130,12 +137,21 @@ const Dashboard = () => {
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
               Submit your first resume document to receive an objective ATS score and structural feedback report.
             </p>
-            <button
-              onClick={() => navigate('/upload')}
-              className="inline-flex items-center px-6 py-3 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-xl font-mono tracking-wider shadow-md hover:shadow-lg"
-            >
-              [ INITIATE_FIRST_AUDIT ]
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                onClick={() => navigate('/upload')}
+                className="inline-flex items-center px-6 py-3 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-xl font-mono tracking-wider shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              >
+                [ INITIATE_FIRST_AUDIT ]
+              </button>
+              <Link
+                to="/demo"
+                className="inline-flex items-center px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors rounded-xl font-mono tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              >
+                <FileText className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" />
+                View sample report
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
