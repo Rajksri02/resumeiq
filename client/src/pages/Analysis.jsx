@@ -150,7 +150,7 @@ const Analysis = () => {
               </h2>
               <ScoreGauge score={result.atsScore} />
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-6 leading-relaxed border-t border-slate-200 dark:border-slate-700 pt-4">
-                This structural score determines your likelihood of passing standard Applicant Tracking Systems. Scores ≥ 75 indicate strong formatting and keyword density.
+                An AI estimate of how well your resume may parse and match a job. It is not a result from a real applicant tracking system.
               </p>
             </div>
 
