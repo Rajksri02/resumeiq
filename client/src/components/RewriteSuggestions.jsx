@@ -66,7 +66,7 @@ const terminalSteps = [
   "> ISOLATING_UNQUANTIFIED_SYSTEMS... [OK]"
 ];
 
-const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
+const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false }) => {
   const [rewrites, setRewrites] = useState(initialData?.rewrites || []);
   const [metricPrompts, setMetricPrompts] = useState(initialData?.metricPrompts || []);
   const [note, setNote] = useState(initialData?.note || initialData?.rewritesNote || '');
@@ -140,6 +140,11 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
   }, [isGenerating]);
 
   const handleGenerate = async (isRegenerate = false) => {
+    if (isDemo) {
+      toast('Demo mode: create a free account to generate live rewrites', { icon: 'ℹ️' });
+      setShowConfirmRegenerate(false);
+      return;
+    }
     setIsGenerating(true);
     setErrorState(null);
     setShowConfirmRegenerate(false);
@@ -327,15 +332,17 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate }) => {
               </button>
             )}
 
-            <button
-              type="button"
-              onClick={() => setShowConfirmRegenerate(true)}
-              className="flex items-center space-x-2 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
-              title="Regenerate suggestions"
-            >
-              <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-              <span>REGENERATE</span>
-            </button>
+            {!isDemo && (
+              <button
+                type="button"
+                onClick={() => setShowConfirmRegenerate(true)}
+                className="flex items-center space-x-2 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                title="Regenerate suggestions"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                <span>REGENERATE</span>
+              </button>
+            )}
           </div>
         )}
       </div>
