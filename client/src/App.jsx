@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Analysis from './pages/Analysis';
+import Demo from './pages/Demo';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import ForgotPassword from './pages/ForgotPassword';
@@ -98,6 +99,7 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                <Route path="/demo" element={<Demo />} />
                 <Route path="/" element={<RootRedirect />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
