@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
+const Resume = require('../models/Resume');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -212,10 +213,48 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// @desc    Delete user account and all associated resumes
+// @route   DELETE /api/auth/me
+// @access  Private
+const deleteMe = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({ success: false, message: 'Please provide your current password' });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    // Delete all resumes belonging to this user
+    await Resume.deleteMany({ user: user._id });
+
+    // Delete user document
+    await User.findByIdAndDelete(user._id);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Account and associated resumes deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    return res.status(500).json({ success: false, message: 'Server error during account deletion' });
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
+  deleteMe,
   forgotPassword,
   resetPassword,
 };
