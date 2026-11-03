@@ -16,6 +16,20 @@ const uploadResume = async (req, res, next) => {
   const filePath = req.file.path;
   const { jobDescription } = req.body;
 
+  if (jobDescription && typeof jobDescription === 'string' && jobDescription.length > 10000) {
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (unlinkErr) {
+        console.error('Error deleting temp file:', unlinkErr);
+      }
+    }
+    return res.status(400).json({
+      success: false,
+      message: 'Job description exceeds maximum allowed length of 10,000 characters'
+    });
+  }
+
   try {
     const extractedText = await extractTextFromPDF(filePath);
 
