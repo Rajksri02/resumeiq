@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { UploadCloud, FileText, X, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -113,6 +113,12 @@ const Upload = () => {
     e.preventDefault();
     if (!file) {
       setError('ERROR: NO_DOCUMENT_DETECTED');
+      return;
+    }
+
+    if (jobDescription && jobDescription.length > 10000) {
+      setError('> ERROR: [400] JOB DESCRIPTION EXCEEDS MAXIMUM ALLOWED LENGTH OF 10,000 CHARACTERS');
+      toast.error('Job description exceeds 10,000 characters', { id: 'upload-error' });
       return;
     }
 
@@ -314,14 +320,17 @@ const Upload = () => {
             <div>
               <label htmlFor="jobDescription" className="block text-sm font-bold mb-3 uppercase tracking-wider text-slate-700 dark:text-slate-400 flex items-center justify-between font-mono">
                 <span>Target Job Description</span>
-                <span className="text-slate-400 dark:text-slate-500 font-normal">OPTIONAL</span>
+                <span className="text-xs text-slate-400 dark:text-slate-500 font-normal">
+                  OPTIONAL • {jobDescription.length.toLocaleString()} / 10,000
+                </span>
               </label>
               <textarea
                 id="jobDescription"
                 name="jobDescription"
+                maxLength={10000}
                 rows={6}
                 className="block w-full text-sm border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 border p-5 transition-colors focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none outline-none rounded-xl text-slate-800 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:border-transparent"
-                placeholder="Paste the job description here..."
+                placeholder="Paste the job description here (max 10,000 characters)..."
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
               />
@@ -340,23 +349,36 @@ const Upload = () => {
               </div>
             )}
 
-            <div className="pt-8 flex justify-end space-x-4 border-t border-slate-200 dark:border-slate-700">
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard')}
-                className="py-3 px-6 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 rounded-xl transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={!file || loading}
-                className={`inline-flex justify-center py-3 px-8 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900 transition-all rounded-xl font-mono tracking-wider ${
-                  (!file || loading) ? 'opacity-50 cursor-not-allowed' : 'shadow-[0_0_15px_rgba(16,185,129,0.3)]'
-                }`}
-              >
-                [ RUN_AUDIT ]
-              </button>
+            <div className="pt-8 border-t border-slate-200 dark:border-slate-700 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-sans leading-relaxed text-left max-w-md">
+                  Your resume text is sent to Google's Gemini API for analysis and stored in your account until you delete it.{' '}
+                  <Link
+                    to="/privacy"
+                    className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 rounded"
+                  >
+                    Privacy policy
+                  </Link>
+                </p>
+                <div className="flex space-x-4 shrink-0 self-end sm:self-center">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/dashboard')}
+                    className="py-3 px-6 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 rounded-xl transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!file || loading}
+                    className={`inline-flex justify-center py-3 px-8 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900 transition-all rounded-xl font-mono tracking-wider ${
+                      (!file || loading) ? 'opacity-50 cursor-not-allowed' : 'shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                    }`}
+                  >
+                    [ RUN_AUDIT ]
+                  </button>
+                </div>
+              </div>
             </div>
           </form>
         </div>
