@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, Database, Ban, Trash2, FileText, Check } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Database, Ban, Trash2, FileText, Check, Server, ExternalLink } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 
 const Privacy = () => {
@@ -88,11 +88,110 @@ const Privacy = () => {
             </div>
           </section>
 
-          {/* Section 2: Nothing is Sold */}
+          {/* Section 2: Third Parties */}
+          <section className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-lg font-mono uppercase tracking-wide">
+              <Server className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <h3>2. Third Parties</h3>
+            </div>
+            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed font-sans">
+              ResumeIQ uses established cloud infrastructure and services to run the application. Below are the third-party providers we use and what each receives:
+            </p>
+            <div className="space-y-3 pt-1">
+              {/* Google Gemini API */}
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-2">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Google (Gemini API)</span>
+                    <span className="text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
+                      AI PROCESSING
+                    </span>
+                  </h4>
+                  <a
+                    href="https://ai.google.dev/gemini-api/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-xs font-mono text-emerald-600 dark:text-emerald-400 hover:underline gap-1"
+                  >
+                    <span>Google Gemini API Terms</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                  <strong>Receives:</strong> Extracted resume text and your target job description to evaluate structural ATS compatibility, extract skills tokens, and generate bullet point rewrites.
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-400/90 leading-relaxed font-sans bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl">
+                  This app uses Google's free API tier, where Google's terms allow submitted content to be used to improve its products and reviewed by humans. Don't upload sensitive or confidential details, and consider removing your phone number and address first. For full details on Google's data handling practices and user rights, please consult the{' '}
+                  <a
+                    href="https://ai.google.dev/gemini-api/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline font-semibold hover:text-amber-800 dark:hover:text-amber-300"
+                  >
+                    Google Gemini API Terms of Service
+                  </a>.
+                </p>
+              </div>
+
+              {/* MongoDB Atlas */}
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-1.5">
+                <h4 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>MongoDB Atlas</span>
+                  <span className="text-[10px] font-mono uppercase bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">
+                    DATABASE STORAGE
+                  </span>
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                  <strong>Receives:</strong> User account credentials (name, email, salted bcrypt password hashes), extracted resume text, audit timestamps, and structured analysis results. Stored in encrypted cloud database clusters until deleted by the user.
+                </p>
+              </div>
+
+              {/* Render */}
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-1.5">
+                <h4 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>Render</span>
+                  <span className="text-[10px] font-mono uppercase bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">
+                    BACKEND HOSTING
+                  </span>
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                  <strong>Receives:</strong> Inbound HTTPS API requests, authorization tokens, and uploaded resume files. Temporary files on the server disk are immediately deleted after text extraction.
+                </p>
+              </div>
+
+              {/* Vercel */}
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-1.5">
+                <h4 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>Vercel</span>
+                  <span className="text-[10px] font-mono uppercase bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">
+                    FRONTEND HOSTING
+                  </span>
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                  <strong>Receives:</strong> Web browser requests to serve the frontend client application. Collects standard edge CDN delivery logs (IP address, browser user-agent, request timestamps).
+                </p>
+              </div>
+
+              {/* Email Provider */}
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-1.5">
+                <h4 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>Email Provider (Nodemailer / SMTP)</span>
+                  <span className="text-[10px] font-mono uppercase bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">
+                    TRANSACTIONAL EMAIL
+                  </span>
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+                  <strong>Receives:</strong> Your email address and temporary password reset tokens strictly when an account recovery is requested.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 3: Nothing is Sold */}
           <section className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
             <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-lg font-mono uppercase tracking-wide">
               <Ban className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              <h3>2. Nothing is Sold or Shared</h3>
+              <h3>3. Nothing is Sold</h3>
             </div>
             <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 p-6 rounded-2xl space-y-3">
               <ul className="space-y-2.5 text-sm text-slate-700 dark:text-slate-300 font-sans">
@@ -102,21 +201,17 @@ const Privacy = () => {
                 </li>
                 <li className="flex items-start">
                   <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mr-2.5 mt-0.5 shrink-0 stroke-[3]" />
-                  <span><strong>AI Processing Only:</strong> Your resume text is sent to Google's Gemini API strictly to produce the structural evaluation, and is stored in your personal account ledger until you choose to delete it.</span>
-                </li>
-                <li className="flex items-start">
-                  <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mr-2.5 mt-0.5 shrink-0 stroke-[3]" />
                   <span><strong>No Ad Tracking:</strong> ResumeIQ contains no behavioral ad trackers, tracking pixels, or cross-site commercial analytics.</span>
                 </li>
               </ul>
             </div>
           </section>
 
-          {/* Section 3: How to Delete Your Data */}
+          {/* Section 4: How to Delete Your Data */}
           <section className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
             <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold text-lg font-mono uppercase tracking-wide">
               <Trash2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-              <h3>3. How to Delete Your Data</h3>
+              <h3>4. How to Delete Your Data</h3>
             </div>
             <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed font-sans">
               You maintain complete ownership and control over your data. We provide two straightforward ways to permanently delete your information:
