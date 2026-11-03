@@ -25,10 +25,12 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Do not trigger session expired redirect for login failures (e.g., wrong password)
+      // Do not trigger session expired redirect for credential verification failures (e.g., wrong password on login or account deletion)
       const isLoginRequest = error.config?.url?.includes('/auth/login');
+      const isDeleteAccountRequest = error.config?.url?.includes('/auth/me') && (error.config?.method === 'delete' || error.config?.method === 'DELETE');
+      const isCredentialCheck = isLoginRequest || isDeleteAccountRequest;
       
-      if (!isLoginRequest) {
+      if (!isCredentialCheck) {
         localStorage.removeItem('token');
         delete axios.defaults.headers.common['Authorization'];
 

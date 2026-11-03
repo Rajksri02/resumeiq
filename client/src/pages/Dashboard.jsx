@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Plus, FileText, ChevronRight, BarChart2 } from 'lucide-react';
+import { Plus, FileText, ChevronRight, BarChart2, Trash2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -12,6 +12,39 @@ const Dashboard = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Account deletion state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
+  const handleDeleteAccount = async (e) => {
+    e.preventDefault();
+    if (!deletePassword) {
+      setDeleteError('Please enter your password to confirm');
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await axios.delete('/auth/me', {
+        data: { password: deletePassword }
+      });
+      logout(false);
+      toast.success('Your account and all associated data have been deleted.');
+      navigate('/');
+    } catch (err) {
+      console.error('Account deletion error:', err);
+      const msg = err.response?.data?.message || 'Failed to delete account. Please verify your password.';
+      setDeleteError(msg);
+      toast.error(msg, { id: 'delete-account-error' });
+      setIsDeleting(false);
+    }
+  };
 
   const fetchHistory = async () => {
     setLoading(true);
@@ -194,7 +227,116 @@ const Dashboard = () => {
             ))}
           </div>
         )}
+
+        {/* Delete Account Section */}
+        <section aria-labelledby="delete-account-heading" className="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 transition-all shadow-sm">
+            <div>
+              <div className="flex items-center space-x-2 text-rose-600 dark:text-rose-400 mb-1">
+                <Trash2 className="w-4 h-4" />
+                <span className="text-xs font-mono font-bold uppercase tracking-widest">
+                  DATA_PRIVACY_MANAGEMENT
+                </span>
+              </div>
+              <h3 id="delete-account-heading" className="text-lg font-bold text-slate-900 dark:text-white">
+                Delete Account &amp; Data
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-xl font-sans leading-relaxed">
+                Permanently purge your account credentials, all historical audit reports, and all stored resume text from our systems.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteError(null);
+                setDeletePassword('');
+                setShowDeleteModal(true);
+              }}
+              className="px-4 py-2.5 text-xs font-mono font-bold text-rose-600 dark:text-rose-400 hover:text-white bg-rose-50 hover:bg-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-600 border border-rose-200 dark:border-rose-500/30 rounded-xl transition-all uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 shrink-0"
+            >
+              Delete my account
+            </button>
+          </div>
+        </section>
       </main>
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-account-modal-title"
+          className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        >
+          <div className="bg-white dark:bg-slate-900 max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-700 rounded-3xl transition-all">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2.5 bg-rose-100 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl text-rose-600 dark:text-rose-400 shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <h3 id="delete-account-modal-title" className="text-xl font-bold text-slate-900 dark:text-white">
+                Delete Your Account?
+              </h3>
+            </div>
+
+            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6 font-sans">
+              This will permanently delete your user profile (<span className="font-bold text-slate-900 dark:text-white">{user?.email}</span>) and purge all associated resume audits and extracted text. This action <strong className="text-rose-600 dark:text-rose-400">cannot be undone</strong>.
+            </p>
+
+            <form onSubmit={handleDeleteAccount} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 mb-2">
+                  Confirm Current Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className="appearance-none block w-full pl-4 pr-12 py-2.5 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-r-xl"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {deleteError && (
+                <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl text-xs font-mono text-rose-700 dark:text-rose-400">
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeletePassword('');
+                    setDeleteError(null);
+                  }}
+                  className="px-4 py-2.5 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="submit"
+                  disabled={isDeleting}
+                  className="px-5 py-2.5 text-xs font-mono font-bold text-white bg-rose-600 hover:bg-rose-500 rounded-xl transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 flex items-center"
+                >
+                  {isDeleting ? 'DELETING...' : 'CONFIRM & DELETE'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
