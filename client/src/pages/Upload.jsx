@@ -369,12 +369,12 @@ const Upload = () => {
                   htmlFor="geminiConsent"
                   className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
                 >
-                  I understand my resume text is processed by Google's Gemini API.
+                  I understand my resume text is processed by Google's Gemini API. {GEMINI_TIER_NOTICE}
                 </label>
               </div>
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-sans leading-relaxed text-left max-w-lg" title={GEMINI_TIER_NOTICE}>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-sans leading-relaxed text-left max-w-lg">
                   Your resume text is sent to Google's Gemini API and stored in your account until you delete it.{' '}
                   See the{' '}
                   <Link
