@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, Database, Ban, Trash2, FileText, Check, Server, ExternalLink } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
+import { GEMINI_TIER_NOTICE } from '../config/privacy';
 
 const Privacy = () => {
   return (
@@ -121,7 +122,7 @@ const Privacy = () => {
                   <strong>Receives:</strong> Extracted resume text and your target job description to evaluate structural ATS compatibility, extract skills tokens, and generate bullet point rewrites.
                 </p>
                 <p className="text-xs text-amber-700 dark:text-amber-400/90 leading-relaxed font-sans bg-amber-500/10 border border-amber-500/20 p-3 rounded-xl">
-                  This app uses Google's free API tier, where Google's terms allow submitted content to be used to improve its products and reviewed by humans. Don't upload sensitive or confidential details, and consider removing your phone number and address first. For full details on Google's data handling practices and user rights, please consult the{' '}
+                  {GEMINI_TIER_NOTICE} Don't upload sensitive or confidential details, and consider removing your phone number and address first. For full details on Google's data handling practices and user rights, please consult the{' '}
                   <a
                     href="https://ai.google.dev/gemini-api/terms"
                     target="_blank"
@@ -142,7 +143,7 @@ const Privacy = () => {
                   </span>
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
-                  <strong>Receives:</strong> User account credentials (name, email, salted bcrypt password hashes), extracted resume text, audit timestamps, and structured analysis results. Stored in encrypted cloud database clusters until deleted by the user.
+                  <strong>Receives:</strong> User account credentials (name, email, salted bcrypt password hashes), extracted resume text, audit timestamps, and structured analysis results. Stored in a MongoDB Atlas database until deleted by the user.
                 </p>
               </div>
 
@@ -175,13 +176,13 @@ const Privacy = () => {
               {/* Email Provider */}
               <div className="p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-1.5">
                 <h4 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span>Email Provider (Nodemailer / SMTP)</span>
+                  <span>SendGrid</span>
                   <span className="text-[10px] font-mono uppercase bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">
                     TRANSACTIONAL EMAIL
                   </span>
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
-                  <strong>Receives:</strong> Your email address and temporary password reset tokens strictly when an account recovery is requested.
+                  <strong>Receives:</strong> Your email address and temporary password reset tokens strictly when an account recovery is requested to deliver password reset emails.
                 </p>
               </div>
             </div>
