@@ -45,6 +45,9 @@ const ForgotPassword = () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
         <h2 className="text-center text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Forgot Password</h2>
         <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">Enter your email to receive a password reset link.</p>
+        <p className="mt-2 text-center text-xs text-amber-600 dark:text-amber-400">
+          In this demo, password-reset emails go to a test inbox and don't reach real mailboxes.
+        </p>
       </div>
       
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

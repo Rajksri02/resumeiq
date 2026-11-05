@@ -174,15 +174,18 @@ const Privacy = () => {
               </div>
 
               {/* Email Provider */}
-              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-1.5">
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl space-y-2">
                 <h4 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span>SendGrid</span>
+                  <span>Mailtrap</span>
                   <span className="text-[10px] font-mono uppercase bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">
                     TRANSACTIONAL EMAIL
                   </span>
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
-                  <strong>Receives:</strong> Your email address and temporary password reset tokens strictly when an account recovery is requested to deliver password reset emails.
+                  <strong>Receives:</strong> Your email address and a temporary password reset token, used strictly to deliver a password reset email when account recovery is requested.
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-400/90 leading-relaxed font-sans bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl">
+                  In this demo, password-reset emails go to a test inbox and don't reach real mailboxes.
                 </p>
               </div>
             </div>
