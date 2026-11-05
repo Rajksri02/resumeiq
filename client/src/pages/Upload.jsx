@@ -5,11 +5,13 @@ import { UploadCloud, FileText, X, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ThemeToggle from '../components/ThemeToggle';
 import { useWarmup } from '../context/WarmupContext';
+import { GEMINI_TIER_NOTICE } from '../config/privacy';
 
 const Upload = () => {
   const { isWarmingUp } = useWarmup();
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState('');
+  const [consentGiven, setConsentGiven] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isDragActive, setIsDragActive] = useState(false);
@@ -113,6 +115,11 @@ const Upload = () => {
     e.preventDefault();
     if (!file) {
       setError('ERROR: NO_DOCUMENT_DETECTED');
+      return;
+    }
+
+    if (!consentGiven) {
+      setError('Please acknowledge that your resume text is processed by Google\'s Gemini API.');
       return;
     }
 
@@ -350,15 +357,33 @@ const Upload = () => {
             )}
 
             <div className="pt-8 border-t border-slate-200 dark:border-slate-700 space-y-4">
+              <div className="flex items-start space-x-3 text-left">
+                <input
+                  type="checkbox"
+                  id="geminiConsent"
+                  checked={consentGiven}
+                  onChange={(e) => setConsentGiven(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-emerald-500 focus:ring-emerald-500 dark:focus:ring-emerald-400 dark:bg-slate-900 cursor-pointer accent-emerald-500"
+                />
+                <label
+                  htmlFor="geminiConsent"
+                  className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer select-none"
+                >
+                  I understand my resume text is processed by Google's Gemini API.
+                </label>
+              </div>
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-sans leading-relaxed text-left max-w-md">
-                  Your resume text is sent to Google's Gemini API for analysis and stored in your account until you delete it.{' '}
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-sans leading-relaxed text-left max-w-lg" title={GEMINI_TIER_NOTICE}>
+                  Your resume text is sent to Google's Gemini API and stored in your account until you delete it.{' '}
+                  See the{' '}
                   <Link
                     to="/privacy"
                     className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 rounded"
                   >
-                    Privacy policy
-                  </Link>
+                    privacy page
+                  </Link>{' '}
+                  for details.
                 </p>
                 <div className="flex space-x-4 shrink-0 self-end sm:self-center">
                   <button
@@ -370,9 +395,9 @@ const Upload = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={!file || loading}
+                    disabled={!file || loading || !consentGiven}
                     className={`inline-flex justify-center py-3 px-8 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900 transition-all rounded-xl font-mono tracking-wider ${
-                      (!file || loading) ? 'opacity-50 cursor-not-allowed' : 'shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                      (!file || loading || !consentGiven) ? 'opacity-50 cursor-not-allowed' : 'shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                     }`}
                   >
                     [ RUN_AUDIT ]
