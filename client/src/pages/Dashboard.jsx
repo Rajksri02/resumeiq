@@ -170,7 +170,7 @@ const Dashboard = () => {
             </div>
             <h3 className="text-xl font-mono font-bold text-slate-800 dark:text-slate-200 mb-3 tracking-wider">NO_RECORDS_FOUND</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
-              Submit your first resume document to receive an objective ATS score and structural feedback report.
+              Submit your first resume document to receive an estimated ATS-style score and structural feedback report.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
