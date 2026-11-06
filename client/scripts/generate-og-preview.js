@@ -247,7 +247,7 @@ export function generateOGImage(outPath) {
 
   // 6. Subheading & Tagline
   img.drawText("AI-Powered Resume Analyzer & Job Fit Evaluation Engine", 140, 240, 3, 203, 213, 225);
-  img.drawText("Objective ATS structural scoring, critical token matching, and", 140, 280, 2, 148, 163, 184);
+  img.drawText("Estimated ATS structural scoring, critical token matching, and", 140, 280, 2, 148, 163, 184);
   img.drawText("actionable bullet rewrites powered by Google Gemini.", 140, 305, 2, 148, 163, 184);
 
   // 7. Three Feature Pills at the Bottom
@@ -267,7 +267,7 @@ export function generateOGImage(outPath) {
   img.fillRoundedRect(760, 370, 280, 80, 12, 30, 41, 59, 255);
   img.fillRoundedRect(762, 372, 276, 76, 10, 15, 23, 42, 255);
   img.drawText("ACTIONABLE REWRITES", 780, 390, 2, 167, 139, 250);
-  img.drawText("Recruiter-Ready Impact", 780, 418, 2, 226, 232, 240);
+  img.drawText("Suggested Bullet Edits", 780, 418, 2, 226, 232, 240);
 
   // 8. Footer metadata line
   img.drawText("resumeiq-jade.vercel.app  |  Zero Uninvented Numbers  |  Human Privacy First", 140, 500, 2, 100, 116, 139);
