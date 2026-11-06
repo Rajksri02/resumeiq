@@ -76,7 +76,7 @@ const ScoreGauge = ({ score }) => {
         <div className="flex flex-col items-end shrink-0">
           <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 tracking-widest mb-1">AUDIT_STATUS</span>
           <span className={`text-xs sm:text-sm font-mono font-bold tracking-wider px-2.5 py-1 border ${borderClass} ${colorClass} bg-white/90 dark:bg-slate-950/60 rounded-lg shadow-xs`}>
-            {isFinished ? (score >= 75 ? 'PASSED' : score >= 50 ? 'REVIEW' : 'FAILED') : 'CALCULATING'}
+            {isFinished ? (score >= 75 ? 'STRONG' : score >= 50 ? 'FAIR' : 'NEEDS WORK') : 'CALCULATING'}
           </span>
         </div>
       </div>
