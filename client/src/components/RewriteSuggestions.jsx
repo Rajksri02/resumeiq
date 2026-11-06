@@ -310,13 +310,14 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
 
         {/* Global Action Buttons */}
         {isGenerated && !isGenerating && (
-          <div className="flex items-center space-x-3 self-start sm:self-center">
+          <div className="flex flex-wrap items-center gap-3 self-start sm:self-center">
             {hasRewrites && (
               <button
                 type="button"
                 onClick={handleCopyAll}
-                className="flex items-center space-x-2 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/80 dark:hover:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="flex items-center space-x-2 px-3.5 py-2 min-h-[44px] text-xs font-mono font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900/80 dark:hover:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 title="Copy all improved bullets"
+                aria-label="Copy all improved bullets"
               >
                 {copiedAll ? (
                   <>
@@ -336,8 +337,9 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
               <button
                 type="button"
                 onClick={() => setShowConfirmRegenerate(true)}
-                className="flex items-center space-x-2 px-3.5 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                className="flex items-center space-x-2 px-3.5 py-2 min-h-[44px] text-xs font-mono font-bold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                 title="Regenerate suggestions"
+                aria-label="Regenerate suggestions"
               >
                 <RotateCcw className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                 <span>REGENERATE</span>
@@ -399,7 +401,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
                 {errorState.type === 'NOT_FOUND' ? (
                   <Link
                     to="/dashboard"
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                    className="inline-flex items-center space-x-2 px-4 py-2 min-h-[44px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>RETURN TO DASHBOARD</span>
@@ -412,7 +414,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
                   <button
                     type="button"
                     onClick={() => handleGenerate(isGenerated)}
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-mono font-bold rounded-xl transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                    className="inline-flex items-center space-x-2 px-4 py-2 min-h-[44px] bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-mono font-bold rounded-xl transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>RETRY REQUEST</span>
@@ -426,7 +428,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
 
       {/* STATE 1: NOT GENERATED */}
       {!isGenerated && !isGenerating && !errorState && (
-        <div className="bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/80 p-8 rounded-2xl text-center my-4">
+        <div className="bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/80 p-6 sm:p-8 rounded-2xl text-center my-4">
           <div className="inline-flex p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-2xl mb-4">
             <Sparkles className="w-8 h-8" />
           </div>
@@ -440,7 +442,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
           <button
             type="button"
             onClick={() => handleGenerate(false)}
-            className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-3 font-mono font-bold text-sm tracking-wider uppercase rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900"
+            className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-3 min-h-[44px] font-mono font-bold text-sm tracking-wider uppercase rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900"
           >
             <Sparkles className="w-4 h-4" />
             <span>GENERATE REWRITES</span>
@@ -515,8 +517,9 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
                   <button
                     type="button"
                     onClick={() => handleCopySingle(item.improved, idx)}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 min-h-[44px] min-w-[44px] justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                     title="Copy improved bullet to clipboard"
+                    aria-label={`Copy improved bullet ${idx + 1} to clipboard`}
                   >
                     {copiedIndex === idx ? (
                       <>
@@ -542,7 +545,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
                       </span>
                       <span className="text-xs text-slate-500 font-mono">Original Resume Bullet</span>
                     </div>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 font-sans leading-relaxed">
+                    <p className="text-sm text-slate-700 dark:text-slate-300 font-sans leading-relaxed break-words">
                       {item.original}
                     </p>
                   </div>
@@ -555,7 +558,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
                       </span>
                       <span className="text-xs text-emerald-700/80 dark:text-emerald-400/80 font-mono">Improved Technical Bullet</span>
                     </div>
-                    <p className="text-sm text-slate-900 dark:text-white font-sans font-medium leading-relaxed">
+                    <p className="text-sm text-slate-900 dark:text-white font-sans font-medium leading-relaxed break-words">
                       {item.improved}
                     </p>
                   </div>
@@ -567,7 +570,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
                     <span className="text-xs font-mono text-slate-500 dark:text-slate-400 flex-shrink-0 font-bold uppercase tracking-wider">
                       REASON:
                     </span>
-                    <span className="text-xs text-slate-600 dark:text-slate-300 font-sans leading-relaxed">
+                    <span className="text-xs text-slate-600 dark:text-slate-300 font-sans leading-relaxed break-words">
                       {item.reason.trim().endsWith('.') ? item.reason.trim() : `${item.reason.trim()}.`}
                     </span>
                   </div>
@@ -652,18 +655,18 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
               Regenerating will replace your currently saved suggestions and consume one request from your rate limit 
               (5 requests per 10 minutes).
             </p>
-            <div className="flex justify-end space-x-3 border-t border-slate-200 dark:border-slate-800 pt-4">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-slate-200 dark:border-slate-800 pt-4">
               <button
                 type="button"
                 onClick={() => setShowConfirmRegenerate(false)}
-                className="px-4 py-2 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                className="px-4 py-2.5 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
               >
                 CANCEL
               </button>
               <button
                 type="button"
                 onClick={() => handleGenerate(true)}
-                className="px-4 py-2 text-xs font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="px-4 py-2.5 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center text-xs font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               >
                 CONFIRM &amp; REGENERATE
               </button>

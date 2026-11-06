@@ -59,7 +59,7 @@ const ScoreGauge = ({ score }) => {
         ))}
       </div>
       
-      <div className="flex items-end justify-between">
+      <div className="flex items-end justify-between flex-wrap gap-2">
         <div className="flex flex-col">
           <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">
             VERIFIED_SCORE
@@ -73,9 +73,9 @@ const ScoreGauge = ({ score }) => {
             </span>
           </div>
         </div>
-        <div className="hidden sm:flex flex-col items-end">
+        <div className="flex flex-col items-end shrink-0">
           <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 tracking-widest mb-1">AUDIT_STATUS</span>
-          <span className={`text-sm font-mono font-bold tracking-wider px-2.5 py-1 border ${borderClass} ${colorClass} bg-white/90 dark:bg-slate-950/60 rounded-lg shadow-xs`}>
+          <span className={`text-xs sm:text-sm font-mono font-bold tracking-wider px-2.5 py-1 border ${borderClass} ${colorClass} bg-white/90 dark:bg-slate-950/60 rounded-lg shadow-xs`}>
             {isFinished ? (score >= 75 ? 'PASSED' : score >= 50 ? 'REVIEW' : 'FAILED') : 'CALCULATING'}
           </span>
         </div>

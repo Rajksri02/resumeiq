@@ -42,7 +42,7 @@ const ThemeToggle = ({ showLabel = false, className = '' }) => {
           onClick={toggleTheme}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="group relative flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold tracking-wider text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="group relative flex items-center space-x-2 px-3 py-2 min-h-[44px] rounded-lg text-xs font-mono font-bold tracking-wider text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
         >
           {/* Icon with smooth rotate/scale transition */}
           <div className="relative w-4 h-4 flex items-center justify-center">
@@ -68,9 +68,9 @@ const ThemeToggle = ({ showLabel = false, className = '' }) => {
           aria-haspopup="true"
           aria-expanded={isOpen}
           title="Choose theme (Light, Dark, System)"
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="p-2 min-h-[44px] min-w-[36px] flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
         >
-          <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
@@ -79,7 +79,7 @@ const ThemeToggle = ({ showLabel = false, className = '' }) => {
         <div 
           role="menu"
           aria-orientation="vertical"
-          className="absolute right-0 top-full mt-2 w-36 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150 font-sans"
+          className="absolute right-0 top-full mt-2 w-36 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150 font-sans"
         >
           <button
             type="button"
@@ -88,7 +88,7 @@ const ThemeToggle = ({ showLabel = false, className = '' }) => {
               setTheme('light');
               setIsOpen(false);
             }}
-            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left transition-colors ${
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 min-h-[44px] text-xs font-medium text-left transition-colors ${
               theme === 'light'
                 ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
@@ -108,7 +108,7 @@ const ThemeToggle = ({ showLabel = false, className = '' }) => {
               setTheme('dark');
               setIsOpen(false);
             }}
-            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left transition-colors ${
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 min-h-[44px] text-xs font-medium text-left transition-colors ${
               theme === 'dark'
                 ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
@@ -130,7 +130,7 @@ const ThemeToggle = ({ showLabel = false, className = '' }) => {
               setTheme('system');
               setIsOpen(false);
             }}
-            className={`w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-left transition-colors ${
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 min-h-[44px] text-xs font-medium text-left transition-colors ${
               theme === 'system'
                 ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'
