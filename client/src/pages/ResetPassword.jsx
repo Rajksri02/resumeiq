@@ -3,8 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import ThemeToggle from '../components/ThemeToggle';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const ResetPassword = () => {
+  useDocumentTitle('Reset Password');
   const { token } = useParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
@@ -49,9 +51,9 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans text-slate-700 dark:text-slate-300 relative transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center px-4 py-12 sm:px-6 lg:px-8 font-sans text-slate-700 dark:text-slate-300 relative transition-colors duration-200">
       {/* Top Floating Theme Toggle */}
-      <div className="absolute top-6 right-6">
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
         <ThemeToggle showLabel={true} />
       </div>
 
@@ -61,7 +63,7 @@ const ResetPassword = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-slate-800 py-10 px-8 border border-slate-200 dark:border-slate-700 shadow-xl sm:px-10 rounded-2xl transition-all">
+        <div className="bg-white dark:bg-slate-800 py-8 px-6 sm:py-10 sm:px-10 border border-slate-200 dark:border-slate-700 shadow-xl rounded-2xl transition-all">
           {message && <div className="mb-4 bg-emerald-50 dark:bg-emerald-500/10 border-l-4 border-emerald-500 text-emerald-700 dark:text-emerald-400 px-4 py-3 font-bold text-sm rounded-r-md">{message}</div>}
           {error && <div className="mb-4 bg-rose-50 dark:bg-red-500/10 border-l-4 border-rose-500 text-rose-700 dark:text-red-400 px-4 py-3 font-bold text-sm rounded-r-md">{error}</div>}
 
@@ -100,7 +102,7 @@ const ResetPassword = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-800 transition-colors rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.25)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-full min-h-[44px] flex items-center justify-center py-3 px-4 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-800 transition-colors rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.25)] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {isLoading ? '[ RESETTING... ]' : '[ RESET PASSWORD ]'}
               </button>

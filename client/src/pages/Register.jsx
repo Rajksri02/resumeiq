@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { BarChart2, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ThemeToggle from '../components/ThemeToggle';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const Register = () => {
+  useDocumentTitle('Create Account');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,9 +32,9 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans text-slate-700 dark:text-slate-300 relative transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center px-4 py-12 sm:px-6 lg:px-8 font-sans text-slate-700 dark:text-slate-300 relative transition-colors duration-200">
       {/* Top Floating Theme Toggle */}
-      <div className="absolute top-6 right-6">
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
         <ThemeToggle showLabel={true} />
       </div>
 
@@ -47,7 +49,7 @@ const Register = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-slate-800 py-10 px-8 border border-slate-200 dark:border-slate-700 shadow-xl sm:px-10 rounded-2xl transition-all">
+        <div className="bg-white dark:bg-slate-800 py-8 px-6 sm:py-10 sm:px-10 border border-slate-200 dark:border-slate-700 shadow-xl rounded-2xl transition-all">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-rose-50 dark:bg-red-500/10 border-l-4 border-rose-500 text-rose-700 dark:text-red-400 px-4 py-3 font-bold text-sm rounded-r-md">
@@ -97,7 +99,8 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 pl-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-r-xl transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="absolute inset-y-0 right-0 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-r-xl transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" aria-hidden="true" />
@@ -111,7 +114,7 @@ const Register = () => {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-800 transition-colors rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.25)]"
+                className="w-full min-h-[44px] flex items-center justify-center py-3 px-4 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-800 transition-colors rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.25)]"
               >
                 [ REGISTER ]
               </button>
@@ -119,10 +122,10 @@ const Register = () => {
           </form>
           
           <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 text-center">
-            <Link to="/login" className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:underline">
+            <Link to="/login" className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:underline py-2 inline-flex items-center min-h-[44px]">
               Already have an account? Sign in.
             </Link>
-            <Link to="/demo" className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 hover:underline uppercase tracking-wider">
+            <Link to="/demo" className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 hover:underline uppercase tracking-wider py-2 inline-flex items-center min-h-[44px]">
               View sample report
             </Link>
           </div>

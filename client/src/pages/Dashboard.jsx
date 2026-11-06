@@ -5,8 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import { Plus, FileText, ChevronRight, BarChart2, Trash2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ThemeToggle from '../components/ThemeToggle';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const Dashboard = () => {
+  useDocumentTitle('Dashboard');
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [history, setHistory] = useState([]);
@@ -89,14 +91,14 @@ const Dashboard = () => {
               </div>
               <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">ResumeIQ</h1>
             </div>
-            <div className="flex items-center space-x-4 sm:space-x-6">
+            <div className="flex items-center space-x-3 sm:space-x-6">
               <ThemeToggle showLabel={true} />
               <span className="text-sm font-medium text-slate-600 dark:text-slate-400 hidden sm:block">
                 {user?.name || user?.email?.split('@')[0]}
               </span>
               <button
                 onClick={logout}
-                className="text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded px-2 py-1"
+                className="text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded px-3 py-2 min-h-[44px] inline-flex items-center"
               >
                 Sign out
               </button>
@@ -112,17 +114,17 @@ const Dashboard = () => {
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Audit History</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Review past structural analyses and track score improvements.</p>
           </div>
-          <div className="mt-6 sm:mt-0 flex flex-wrap items-center gap-3">
+          <div className="mt-6 sm:mt-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Link
               to="/demo"
-              className="inline-flex items-center px-4 py-3 border border-slate-300 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors rounded-xl font-mono tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              className="inline-flex items-center justify-center px-4 py-3 min-h-[44px] w-full sm:w-auto border border-slate-300 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors rounded-xl font-mono tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
             >
               <FileText className="-ml-1 mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               View sample report
             </Link>
             <button
               onClick={() => navigate('/upload')}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950 transition-all rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.25)] hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+              className="inline-flex items-center justify-center px-6 py-3 min-h-[44px] w-full sm:w-auto border border-transparent text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950 transition-all rounded-xl font-mono tracking-wider shadow-[0_0_15px_rgba(16,185,129,0.25)] hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
             >
               <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
               [ NEW_AUDIT ]
@@ -173,13 +175,13 @@ const Dashboard = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
                 onClick={() => navigate('/upload')}
-                className="inline-flex items-center px-6 py-3 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-xl font-mono tracking-wider shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 min-h-[44px] text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 transition-colors rounded-xl font-mono tracking-wider shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               >
                 [ INITIATE_FIRST_AUDIT ]
               </button>
               <Link
                 to="/demo"
-                className="inline-flex items-center px-5 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors rounded-xl font-mono tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 min-h-[44px] text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors rounded-xl font-mono tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
               >
                 <FileText className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" />
                 View sample report
@@ -252,7 +254,7 @@ const Dashboard = () => {
                 setDeletePassword('');
                 setShowDeleteModal(true);
               }}
-              className="px-4 py-2.5 text-xs font-mono font-bold text-rose-600 dark:text-rose-400 hover:text-white bg-rose-50 hover:bg-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-600 border border-rose-200 dark:border-rose-500/30 rounded-xl transition-all uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 shrink-0"
+              className="px-4 py-2.5 min-h-[44px] inline-flex items-center justify-center w-full sm:w-auto text-xs font-mono font-bold text-rose-600 dark:text-rose-400 hover:text-white bg-rose-50 hover:bg-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-600 border border-rose-200 dark:border-rose-500/30 rounded-xl transition-all uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 shrink-0"
             >
               Delete my account
             </button>
@@ -299,7 +301,8 @@ const Dashboard = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-r-xl"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="absolute inset-y-0 right-0 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 rounded-r-xl"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -312,7 +315,7 @@ const Dashboard = () => {
                 </div>
               )}
 
-              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   disabled={isDeleting}
@@ -321,14 +324,14 @@ const Dashboard = () => {
                     setDeletePassword('');
                     setDeleteError(null);
                   }}
-                  className="px-4 py-2.5 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                  className="px-4 py-2.5 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center text-xs font-mono font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                 >
                   CANCEL
                 </button>
                 <button
                   type="submit"
                   disabled={isDeleting}
-                  className="px-5 py-2.5 text-xs font-mono font-bold text-white bg-rose-600 hover:bg-rose-500 rounded-xl transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 flex items-center"
+                  className="px-5 py-2.5 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center text-xs font-mono font-bold text-white bg-rose-600 hover:bg-rose-500 rounded-xl transition-all shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                 >
                   {isDeleting ? 'DELETING...' : 'CONFIRM & DELETE'}
                 </button>

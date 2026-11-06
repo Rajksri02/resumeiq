@@ -2,24 +2,29 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, ShieldCheck, Database, Ban, Trash2, FileText, Check, Server, ExternalLink } from 'lucide-react';
 import ThemeToggle from '../components/ThemeToggle';
 import { GEMINI_TIER_NOTICE } from '../config/privacy';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const Privacy = () => {
+  useDocumentTitle('Privacy Policy');
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-700 dark:text-slate-300 pb-20 transition-colors duration-200">
       {/* Header */}
       <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <Link
               to="/upload"
-              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               title="Return to upload"
+              aria-label="Return to upload"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <div className="pl-4 border-l border-slate-200 dark:border-slate-700">
-              <h1 className="text-lg font-bold text-slate-900 dark:text-white">Privacy &amp; Data Transparency</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-mono font-bold uppercase tracking-wider">
+            <div className="pl-3 sm:pl-4 border-l border-slate-200 dark:border-slate-700">
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate max-w-[170px] xs:max-w-[220px] sm:max-w-none">
+                Privacy &amp; Data Transparency
+              </h1>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono font-bold uppercase tracking-wider">
                 ResumeIQ Privacy Policy
               </p>
             </div>
@@ -29,8 +34,8 @@ const Privacy = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-10">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 sm:p-12 shadow-xl space-y-10 transition-colors">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-12 shadow-xl space-y-8 sm:space-y-10 transition-colors">
           
           {/* Top Banner */}
           <div className="flex items-center space-x-3 pb-6 border-b border-slate-200 dark:border-slate-800">
@@ -256,16 +261,16 @@ const Privacy = () => {
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
               LAST_UPDATED: NOVEMBER 2026
             </span>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
               <Link
                 to="/upload"
-                className="inline-flex items-center px-5 py-2.5 text-xs font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-all shadow-sm tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="inline-flex items-center justify-center px-5 py-2.5 min-h-[44px] w-full sm:w-auto text-xs font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-all shadow-sm tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               >
                 RETURN TO UPLOAD
               </Link>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center px-4 py-2.5 text-xs font-mono font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                className="inline-flex items-center justify-center px-4 py-2.5 min-h-[44px] w-full sm:w-auto text-xs font-mono font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
               >
                 DASHBOARD
               </Link>

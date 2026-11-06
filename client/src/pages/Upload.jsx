@@ -6,8 +6,10 @@ import toast from 'react-hot-toast';
 import ThemeToggle from '../components/ThemeToggle';
 import { useWarmup } from '../context/WarmupContext';
 import { GEMINI_TIER_NOTICE } from '../config/privacy';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const Upload = () => {
+  useDocumentTitle('New Analysis');
   const { isWarmingUp } = useWarmup();
   const [file, setFile] = useState(null);
   const [jobDescription, setJobDescription] = useState('');
@@ -236,7 +238,7 @@ const Upload = () => {
         <button
           type="button"
           onClick={() => navigate('/dashboard')}
-          className="inline-flex items-center space-x-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors p-2 rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800"
+          className="inline-flex items-center space-x-2 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors px-3 py-2 min-h-[44px] min-w-[44px] rounded-xl hover:bg-slate-200/60 dark:hover:bg-slate-800"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Dashboard</span>
@@ -245,7 +247,7 @@ const Upload = () => {
       </div>
 
       <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden transition-all">
-        <div className="px-8 py-10 sm:p-14">
+        <div className="px-5 py-8 sm:p-14">
           <div className="mb-10 text-left border-b border-slate-200 dark:border-slate-700 pb-8">
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">New Analysis</h1>
             <p className="mt-2 text-slate-600 dark:text-slate-400">
@@ -307,8 +309,9 @@ const Upload = () => {
                   <button
                     type="button"
                     onClick={removeFile}
-                    className="p-2 text-slate-400 hover:text-amber-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-lg"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center p-2 text-slate-400 hover:text-amber-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 rounded-lg"
                     title="Remove file"
+                    aria-label="Remove uploaded file"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -325,7 +328,7 @@ const Upload = () => {
             </div>
 
             <div>
-              <label htmlFor="jobDescription" className="block text-sm font-bold mb-3 uppercase tracking-wider text-slate-700 dark:text-slate-400 flex items-center justify-between font-mono">
+              <label htmlFor="jobDescription" className="block text-sm font-bold mb-3 uppercase tracking-wider text-slate-700 dark:text-slate-400 flex flex-wrap items-center justify-between gap-1 font-mono">
                 <span>Target Job Description</span>
                 <span className="text-xs text-slate-400 dark:text-slate-500 font-normal">
                   OPTIONAL • {jobDescription.length.toLocaleString()} / 10,000
@@ -379,24 +382,24 @@ const Upload = () => {
                   See the{' '}
                   <Link
                     to="/privacy"
-                    className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 rounded"
+                    className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 rounded py-1 inline-block"
                   >
                     privacy page
                   </Link>{' '}
                   for details.
                 </p>
-                <div className="flex space-x-4 shrink-0 self-end sm:self-center">
+                <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto shrink-0 self-stretch sm:self-center">
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="py-3 px-6 text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 rounded-xl transition-colors"
+                    className="py-3 px-6 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 rounded-xl transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={!file || loading || !consentGiven}
-                    className={`inline-flex justify-center py-3 px-8 text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900 transition-all rounded-xl font-mono tracking-wider ${
+                    className={`inline-flex items-center justify-center py-3 px-8 min-h-[44px] w-full sm:w-auto text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900 transition-all rounded-xl font-mono tracking-wider ${
                       (!file || loading || !consentGiven) ? 'opacity-50 cursor-not-allowed' : 'shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                     }`}
                   >

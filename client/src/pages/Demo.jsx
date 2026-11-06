@@ -5,6 +5,7 @@ import SkillBadge from '../components/SkillBadge';
 import FeedbackAccordion from '../components/FeedbackAccordion';
 import RewriteSuggestions from '../components/RewriteSuggestions';
 import ThemeToggle from '../components/ThemeToggle';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const SAMPLE_ANALYSIS = {
   fileName: 'Jane_Doe_Resume_2026.pdf',
@@ -92,6 +93,7 @@ const SAMPLE_ANALYSIS = {
 };
 
 const Demo = () => {
+  useDocumentTitle('Sample Report Demo');
   const analysis = SAMPLE_ANALYSIS;
   const result = analysis.analysis;
   const hasSkillsData = result.matchedSkills?.length > 0 || result.missingSkills?.length > 0;
@@ -109,7 +111,7 @@ const Demo = () => {
           </div>
           <Link
             to="/register"
-            className="inline-flex items-center px-4 py-1.5 text-xs font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-all shadow-sm tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            className="inline-flex items-center justify-center px-4 py-2 min-h-[44px] text-xs font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-all shadow-sm tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
             CREATE FREE ACCOUNT
           </Link>
@@ -118,35 +120,36 @@ const Demo = () => {
 
       {/* Header Bar */}
       <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Link
                 to="/"
-                className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 title="Return home"
+                aria-label="Return home"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
-              <div className="pl-4 border-l border-slate-200 dark:border-slate-700">
+              <div className="pl-3 sm:pl-4 border-l border-slate-200 dark:border-slate-700">
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-lg font-bold text-slate-900 dark:text-white truncate max-w-[180px] sm:max-w-md md:max-w-lg lg:max-w-xl">
+                  <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate max-w-[130px] xs:max-w-[180px] sm:max-w-md md:max-w-lg lg:max-w-xl">
                     {analysis.fileName}
                   </h1>
                   <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                     SAMPLE_PREVIEW
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-mono font-bold uppercase tracking-wider mt-0.5 flex items-center space-x-2">
+                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono font-bold uppercase tracking-wider mt-0.5 flex items-center space-x-2">
                   <span>CANDIDATE: {analysis.candidate.name} &lt;{analysis.candidate.email}&gt;</span>
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <ThemeToggle showLabel={true} />
               <Link
                 to="/register"
-                className="hidden sm:inline-flex items-center px-3.5 py-1.5 text-xs font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-colors shadow-sm tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="hidden sm:inline-flex items-center justify-center px-3.5 py-2 min-h-[44px] text-xs font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-colors shadow-sm tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
               >
                 Sign Up
               </Link>
@@ -219,16 +222,16 @@ const Demo = () => {
           {/* Right Rail: Detailed Breakdown */}
           <div className="lg:col-span-8 space-y-8">
             
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-8 rounded-2xl border-t-4 border-t-emerald-500 transition-all">
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl border-t-4 border-t-emerald-500 transition-all">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Executive Summary</h2>
-              <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
+              <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
                 {result.overallSummary}
               </p>
             </div>
             
             {/* Strengths & Weaknesses */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white dark:bg-slate-800 shadow-sm border border-emerald-300 dark:border-emerald-500/30 p-6 rounded-2xl transition-all">
+              <div className="bg-white dark:bg-slate-800 shadow-sm border border-emerald-300 dark:border-emerald-500/30 p-5 sm:p-6 rounded-2xl transition-all">
                 <div className="flex items-center mb-6 pb-3 border-b border-emerald-100 dark:border-emerald-500/10">
                   <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400">Structural Strengths</h2>
                 </div>
@@ -244,7 +247,7 @@ const Demo = () => {
                 </ul>
               </div>
 
-              <div className="bg-white dark:bg-slate-800 shadow-sm border border-amber-300 dark:border-amber-500/30 p-6 rounded-2xl transition-all">
+              <div className="bg-white dark:bg-slate-800 shadow-sm border border-amber-300 dark:border-amber-500/30 p-5 sm:p-6 rounded-2xl transition-all">
                 <div className="flex items-center mb-6 pb-3 border-b border-amber-100 dark:border-amber-500/10">
                   <h2 className="text-lg font-bold text-amber-700 dark:text-amber-400">Critical Issues</h2>
                 </div>
@@ -262,7 +265,7 @@ const Demo = () => {
             </div>
 
             {/* Actionable Suggestions */}
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-8 rounded-2xl transition-all">
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">Remediation Plan</h2>
               <div className="pl-2">
                 <ol className="space-y-5">
@@ -279,7 +282,7 @@ const Demo = () => {
             </div>
 
             {/* Section Feedback */}
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-8 rounded-2xl transition-all">
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">Section Audit</h2>
               <div className="space-y-3">
                 {result.sectionFeedback && Object.entries(result.sectionFeedback).map(([section, feedback]) => (
@@ -305,7 +308,7 @@ const Demo = () => {
         </div>
 
         {/* Bottom CTA Section with Sign-Up Button */}
-        <section aria-labelledby="cta-heading" className="mt-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 sm:p-12 shadow-xl text-center max-w-4xl mx-auto transition-all relative overflow-hidden">
+        <section aria-labelledby="cta-heading" className="mt-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-12 shadow-xl text-center max-w-4xl mx-auto transition-all relative overflow-hidden">
           <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600"></div>
           
           <div className="mx-auto flex h-16 w-16 items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl mb-6 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
@@ -322,13 +325,13 @@ const Demo = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               to="/register"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 text-sm font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/25 tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 min-h-[44px] text-sm font-mono font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/25 tracking-wider uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               CREATE A FREE ACCOUNT
             </Link>
             <Link
               to="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-300 dark:border-slate-700 rounded-xl transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 min-h-[44px] text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-300 dark:border-slate-700 rounded-xl transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
             >
               Sign In
             </Link>
