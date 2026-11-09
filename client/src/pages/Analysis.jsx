@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Check, AlertTriangle, ArrowLeft, Trash2 } from 'lucide-react';
+import { Check, AlertTriangle, ArrowLeft, Trash2, RefreshCw, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ScoreGauge from '../components/ScoreGauge';
 import SkillBadge from '../components/SkillBadge';
@@ -9,6 +9,12 @@ import FeedbackAccordion from '../components/FeedbackAccordion';
 import RewriteSuggestions from '../components/RewriteSuggestions';
 import ThemeToggle from '../components/ThemeToggle';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+
+const reanalyzeTerminalSteps = [
+  "> INITIATING_REAUDIT...",
+  "> LOADING_STORED_TOKENS... [OK]",
+  "> CROSS_REFERENCING_TARGET_ROLE... [OK]"
+];
 
 const Analysis = () => {
   const { id } = useParams();
@@ -19,6 +25,123 @@ const Analysis = () => {
   const [error, setError] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Re-analyze state
+  const [showReanalyzeModal, setShowReanalyzeModal] = useState(false);
+  const [reanalyzeJobDescription, setReanalyzeJobDescription] = useState('');
+  const [isReanalyzing, setIsReanalyzing] = useState(false);
+  const [reanalyzeError, setReanalyzeError] = useState(null);
+  const [terminalLines, setTerminalLines] = useState([]);
+  const [deepAnalysisStarted, setDeepAnalysisStarted] = useState(false);
+  const [terminalError, setTerminalError] = useState(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const startTimeRef = useRef(null);
+
+  // Track elapsed seconds while waiting for re-analysis completion
+  useEffect(() => {
+    if (!isReanalyzing || terminalError) return;
+
+    startTimeRef.current = Date.now();
+    setElapsedSeconds(0);
+
+    const timer = setInterval(() => {
+      if (startTimeRef.current) {
+        setElapsedSeconds(Math.floor((Date.now() - startTimeRef.current) / 1000));
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isReanalyzing, terminalError]);
+
+  // Sequentially display terminal steps then deep analysis
+  useEffect(() => {
+    if (!isReanalyzing || terminalError) return;
+
+    let currentStep = 0;
+    setTerminalLines([reanalyzeTerminalSteps[0]]);
+    setDeepAnalysisStarted(false);
+
+    const interval = setInterval(() => {
+      currentStep++;
+      if (currentStep < reanalyzeTerminalSteps.length) {
+        setTerminalLines((prev) => [...prev, reanalyzeTerminalSteps[currentStep]]);
+      } else {
+        setDeepAnalysisStarted(true);
+        clearInterval(interval);
+      }
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, [isReanalyzing, terminalError]);
+
+  const handleReanalyzeSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!reanalyzeJobDescription.trim()) {
+      setReanalyzeError('Please provide a job description.');
+      return;
+    }
+
+    if (reanalyzeJobDescription.length > 10000) {
+      setReanalyzeError('> ERROR: [400] JOB DESCRIPTION EXCEEDS MAXIMUM ALLOWED LENGTH OF 10,000 CHARACTERS');
+      toast.error('Job description exceeds 10,000 characters', { id: 'reanalyze-error' });
+      return;
+    }
+
+    setIsReanalyzing(true);
+    setReanalyzeError(null);
+    setTerminalError(null);
+    setTerminalLines([]);
+    setDeepAnalysisStarted(false);
+    setElapsedSeconds(0);
+    startTimeRef.current = Date.now();
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 65000);
+
+    try {
+      const res = await axios.post(`/resume/${id}/reanalyze`, {
+        jobDescription: reanalyzeJobDescription.trim()
+      }, {
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      toast.success('Resume analyzed for new role!');
+      setShowReanalyzeModal(false);
+      setReanalyzeJobDescription('');
+      setIsReanalyzing(false);
+      navigate(`/analysis/${res.data._id}`);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.error(err);
+
+      let errorMsg = '> ERROR: REAUDIT_FAILED - UNKNOWN_ERROR';
+      let toastMsg = 'Re-analysis failed. Please try again.';
+
+      if (axios.isCancel(err) || err.name === 'CanceledError') {
+        errorMsg = '> ERROR: TIMEOUT_EXCEEDED (65000ms)';
+        toastMsg = 'Audit request timed out after 65s. The AI service may be busy.';
+      } else if (!err.response) {
+        errorMsg = '> ERROR: NETWORK_FAILURE - SERVER_UNREACHABLE';
+        toastMsg = 'Could not reach server. Please check your network connection.';
+      } else if (err.response?.data?.message) {
+        errorMsg = `> ERROR: [${err.response.status}] ${err.response.data.message.toUpperCase()}`;
+        toastMsg = err.response.data.message;
+      }
+
+      if (err.response?.status !== 401) {
+        toast.error(toastMsg, { id: 'reanalyze-error' });
+      }
+
+      setTerminalError(errorMsg);
+      setTimeout(() => {
+        setIsReanalyzing(false);
+        setReanalyzeError(errorMsg.replace('> ERROR: ', ''));
+      }, 4000);
+    }
+  };
 
   const fetchAnalysis = async () => {
     setLoading(true);
@@ -42,6 +165,10 @@ const Analysis = () => {
   };
 
   useEffect(() => {
+    setShowReanalyzeModal(false);
+    setIsReanalyzing(false);
+    setReanalyzeError(null);
+    setTerminalError(null);
     fetchAnalysis();
   }, [id]);
 
@@ -127,7 +254,20 @@ const Analysis = () => {
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setReanalyzeError(null);
+                  setShowReanalyzeModal(true);
+                }}
+                className="inline-flex items-center justify-center px-3 sm:px-3.5 py-2 min-h-[44px] text-xs sm:text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 font-mono tracking-wider"
+                title="Analyze for a different job"
+              >
+                <RefreshCw className="w-4 h-4 sm:mr-2 shrink-0" />
+                <span className="hidden md:inline">Analyze for a different job</span>
+                <span className="md:hidden">New Job</span>
+              </button>
               <ThemeToggle showLabel={true} />
               <button
                 onClick={() => setShowDeleteConfirm(true)}
@@ -156,7 +296,29 @@ const Analysis = () => {
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-6 leading-relaxed border-t border-slate-200 dark:border-slate-700 pt-4">
                 An AI estimate of how well your resume may parse and match a job. It is not a result from a real applicant tracking system.
               </p>
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReanalyzeError(null);
+                    setShowReanalyzeModal(true);
+                  }}
+                  className="w-full inline-flex items-center justify-center px-4 py-3 min-h-[44px] text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 font-mono tracking-wider"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2 shrink-0" />
+                  <span>Analyze for a different job</span>
+                </button>
+              </div>
             </div>
+
+            {analysis.jobDescription && (
+              <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl transition-all">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3 pb-3 border-b border-slate-200 dark:border-slate-700">Target Role</h2>
+                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-4 font-mono leading-relaxed bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                  {analysis.jobDescription}
+                </p>
+              </div>
+            )}
 
             {hasSkillsData && (
               <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl transition-all">
@@ -312,6 +474,124 @@ const Analysis = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Re-analyze Modal & Terminal Loading State */}
+      {showReanalyzeModal && (
+        <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          {isReanalyzing ? (
+            /* Terminal-style loading state */
+            <div className="w-full max-w-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in">
+              {/* Terminal Header */}
+              <div className="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center space-x-2">
+                <div className="w-3 h-3 rounded-full bg-slate-600"></div>
+                <div className="w-3 h-3 rounded-full bg-slate-600"></div>
+                <div className="w-3 h-3 rounded-full bg-slate-600"></div>
+                <span className="ml-2 text-xs font-mono text-slate-400 tracking-wider">reanalyze_process.exe</span>
+              </div>
+              {/* Terminal Body */}
+              <div className="p-6 sm:p-8 font-mono text-sm sm:text-base space-y-3 min-h-[260px]">
+                {terminalLines.map((line, i) => (
+                  <div key={i} className="text-emerald-400">
+                    {line}
+                  </div>
+                ))}
+                {deepAnalysisStarted && (
+                  <div className="text-emerald-400 flex items-center">
+                    <span>{`> RUNNING_DEEP_ANALYSIS... ${elapsedSeconds}s (this can take up to a minute)`}</span>
+                    {!terminalError && (
+                      <span className="animate-pulse w-2.5 h-4 bg-emerald-400 inline-block ml-2"></span>
+                    )}
+                  </div>
+                )}
+                {terminalError && (
+                  <div className="text-amber-500 mt-4 font-bold border-l-2 border-amber-500 pl-3">
+                    {terminalError}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Job description input dialog */
+            <div className="bg-white dark:bg-slate-900 max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-700 rounded-2xl transition-all">
+              <div className="flex items-start justify-between mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                    Analyze for a different job
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    Re-evaluate <span className="font-semibold text-slate-800 dark:text-slate-200">"{analysis.fileName}"</span> against a new job description without re-uploading your resume.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowReanalyzeModal(false);
+                    setReanalyzeError(null);
+                  }}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0 ml-2"
+                  aria-label="Close dialog"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleReanalyzeSubmit} className="space-y-4">
+                {reanalyzeError && (
+                  <div className="p-3 text-xs font-mono text-rose-600 dark:text-red-400 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl">
+                    {reanalyzeError}
+                  </div>
+                )}
+
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <label htmlFor="reanalyzeJobDescription" className="block text-sm font-bold text-slate-900 dark:text-white">
+                      Target Job Description <span className="text-rose-500">*</span>
+                    </label>
+                    <span className={`text-xs font-mono ${reanalyzeJobDescription.length > 10000 ? 'text-rose-500 font-bold' : 'text-slate-400'}`}>
+                      {reanalyzeJobDescription.length.toLocaleString()} / 10,000
+                    </span>
+                  </div>
+                  <textarea
+                    id="reanalyzeJobDescription"
+                    value={reanalyzeJobDescription}
+                    onChange={(e) => {
+                      setReanalyzeJobDescription(e.target.value);
+                      if (reanalyzeError) setReanalyzeError(null);
+                    }}
+                    rows={7}
+                    placeholder="Paste the new job description, key requirements, or role summary here..."
+                    className="w-full p-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono text-xs sm:text-sm leading-relaxed resize-y"
+                    autoFocus
+                  />
+                  <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    A new audit report will be generated and saved to your history. Your original analysis will remain unchanged.
+                  </p>
+                </div>
+
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowReanalyzeModal(false);
+                      setReanalyzeError(null);
+                    }}
+                    className="px-5 py-2.5 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center text-sm font-bold text-slate-700 dark:text-slate-300 bg-transparent border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 uppercase tracking-wider"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!reanalyzeJobDescription.trim() || reanalyzeJobDescription.length > 10000}
+                    className="px-6 py-2.5 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-xl shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 uppercase tracking-wider"
+                  >
+                    Analyze
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       )}
     </div>
