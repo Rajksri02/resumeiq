@@ -4,6 +4,62 @@ const { analyzeResumeText } = require('../utils/analyzeResume');
 const { generateRewrites } = require('../utils/generateRewrites');
 const Resume = require('../models/Resume');
 
+// Helper to format analysis errors with consistent status codes and messages
+const handleAnalysisError = (error, defaultMessage = 'Error processing the uploaded resume') => {
+  let statusCode = error.statusCode || error.status || 500;
+  let message = error.message || defaultMessage;
+
+  const lower = (message + ' ' + (error.stack || '')).toLowerCase();
+  if (
+    statusCode === 504 ||
+    lower.includes('504') ||
+    lower.includes('timed out') ||
+    lower.includes('timeout') ||
+    error.code === 'GATEWAY_TIMEOUT' ||
+    error.code === 'ETIMEDOUT'
+  ) {
+    statusCode = 504;
+    message = error.statusCode === 504 ? error.message : 'The AI analysis timed out. The service took too long to respond, please try again.';
+  } else if (
+    lower.includes('429') ||
+    lower.includes('quota') ||
+    lower.includes('resource_exhausted') ||
+    lower.includes('too many requests')
+  ) {
+    statusCode = 429;
+    message = 'The AI service is busy, try again in a minute';
+  } else if (
+    lower.includes('503') ||
+    lower.includes('service unavailable')
+  ) {
+    statusCode = 503;
+    message = 'The AI service is busy, try again in a minute';
+  } else if (
+    lower.includes('api_key_invalid') ||
+    lower.includes('api key not valid') ||
+    lower.includes('invalid api key') ||
+    lower.includes('permission_denied')
+  ) {
+    statusCode = 503;
+    message = 'Analysis unavailable';
+  } else if (
+    lower.includes('generativelanguage.googleapis.com') ||
+    lower.includes('google-generative-ai') ||
+    lower.includes('googlegenerativeai')
+  ) {
+    statusCode = 500;
+    message = 'Analysis unavailable';
+  } else if (
+    lower.includes('scanned_pdf_no_text') ||
+    lower.includes('scanned image')
+  ) {
+    statusCode = 400;
+    message = 'This PDF appears to be a scanned image. Please upload a text-based PDF.';
+  }
+
+  return { statusCode, message };
+};
+
 // @desc    Upload resume, extract text, and analyze with Gemini
 // @route   POST /api/resume/upload
 // @access  Private
@@ -60,56 +116,7 @@ const uploadResume = async (req, res, next) => {
   } catch (error) {
     console.error('Error processing resume:', error);
 
-    let statusCode = error.statusCode || error.status || 500;
-    let message = error.message || 'Error processing the uploaded resume';
-
-    const lower = (message + ' ' + (error.stack || '')).toLowerCase();
-    if (
-      statusCode === 504 ||
-      lower.includes('504') ||
-      lower.includes('timed out') ||
-      lower.includes('timeout') ||
-      error.code === 'GATEWAY_TIMEOUT' ||
-      error.code === 'ETIMEDOUT'
-    ) {
-      statusCode = 504;
-      message = error.statusCode === 504 ? error.message : 'The AI analysis timed out. The service took too long to respond, please try again.';
-    } else if (
-      lower.includes('429') ||
-      lower.includes('quota') ||
-      lower.includes('resource_exhausted') ||
-      lower.includes('too many requests')
-    ) {
-      statusCode = 429;
-      message = 'The AI service is busy, try again in a minute';
-    } else if (
-      lower.includes('503') ||
-      lower.includes('service unavailable')
-    ) {
-      statusCode = 503;
-      message = 'The AI service is busy, try again in a minute';
-    } else if (
-      lower.includes('api_key_invalid') ||
-      lower.includes('api key not valid') ||
-      lower.includes('invalid api key') ||
-      lower.includes('permission_denied')
-    ) {
-      statusCode = 503;
-      message = 'Analysis unavailable';
-    } else if (
-      lower.includes('generativelanguage.googleapis.com') ||
-      lower.includes('google-generative-ai') ||
-      lower.includes('googlegenerativeai')
-    ) {
-      statusCode = 500;
-      message = 'Analysis unavailable';
-    } else if (
-      lower.includes('scanned_pdf_no_text') ||
-      lower.includes('scanned image')
-    ) {
-      statusCode = 400;
-      message = 'This PDF appears to be a scanned image. Please upload a text-based PDF.';
-    }
+    const { statusCode, message } = handleAnalysisError(error, 'Error processing the uploaded resume');
 
     res.status(statusCode).json({
       success: false,
@@ -351,10 +358,88 @@ const getResumeRewrites = async (req, res) => {
   }
 };
 
+// @desc    Re-analyze an existing resume for a different job description
+// @route   POST /api/resume/:id/reanalyze
+// @access  Private
+const reanalyzeResume = async (req, res, next) => {
+  const requestStartTime = Date.now();
+  const { id } = req.params;
+  const { jobDescription } = req.body;
+
+  // 1. Look up with { _id, user } (404 if not owned or not found)
+  let resume;
+  try {
+    resume = await Resume.findOne({ _id: id, user: req.user.id });
+  } catch (err) {
+    if (err.name === 'CastError') {
+      return res.status(404).json({ success: false, message: 'Resume not found' });
+    }
+    return res.status(500).json({ success: false, message: 'Failed to retrieve resume' });
+  }
+
+  if (!resume) {
+    return res.status(404).json({ success: false, message: 'Resume not found' });
+  }
+
+  // 2. Validate job description (same length cap of 10,000 characters as upload)
+  if (!jobDescription || typeof jobDescription !== 'string' || !jobDescription.trim()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Job description is required'
+    });
+  }
+
+  if (jobDescription.length > 10000) {
+    return res.status(400).json({
+      success: false,
+      message: 'Job description exceeds maximum allowed length of 10,000 characters'
+    });
+  }
+
+  // 3. Reuse stored extractedText (no new text extraction)
+  if (!resume.extractedText || resume.extractedText.trim().length < 50) {
+    return res.status(400).json({
+      success: false,
+      message: 'This resume has insufficient extracted text for re-analysis'
+    });
+  }
+
+  try {
+    // 4. Analyze with Gemini enforcing one overall deadline
+    const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || 55000;
+    const deadline = requestStartTime + TOTAL_TIMEOUT_MS;
+    const analysisResult = await analyzeResumeText(resume.extractedText, jobDescription.trim(), false, { deadline });
+
+    // 5. Save the result as a NEW Resume document (so history keeps both)
+    const newResume = new Resume({
+      user: req.user.id,
+      fileName: resume.fileName,
+      extractedText: resume.extractedText,
+      jobDescription: jobDescription.trim(),
+      analysis: analysisResult
+    });
+
+    const savedResume = await newResume.save();
+
+    res.status(201).json(savedResume);
+  } catch (error) {
+    console.error('Error re-analyzing resume:', error);
+
+    const { statusCode, message } = handleAnalysisError(error, 'Error re-analyzing resume');
+
+    res.status(statusCode).json({
+      success: false,
+      message,
+      ...(process.env.NODE_ENV !== 'production' && error.stack ? { stack: error.stack } : {})
+    });
+  }
+};
+
 module.exports = {
   uploadResume,
   getResumeHistory,
   getResumeById,
   deleteResume,
-  getResumeRewrites
+  getResumeRewrites,
+  reanalyzeResume
 };
