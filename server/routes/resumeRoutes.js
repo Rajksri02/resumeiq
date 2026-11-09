@@ -9,7 +9,8 @@ const {
   getResumeHistory,
   getResumeById,
   deleteResume,
-  getResumeRewrites
+  getResumeRewrites,
+  reanalyzeResume
 } = require('../controllers/resumeController');
 
 // Rate limiting: 5 uploads per 10 minutes per authenticated user (falling back to IP)
@@ -22,6 +23,21 @@ const uploadLimiter = rateLimit({
   message: {
     success: false,
     message: 'Upload limit reached: maximum 5 uploads per 10 minutes. Please try again later.'
+  }
+});
+
+// Rate limiting: 5 re-analyses per 10 minutes per authenticated user (falling back to IP)
+// Matches upload limiter configuration with skipFailedRequests enabled
+const reanalyzeLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  skipFailedRequests: true,
+  keyGenerator: (req) => req.user?.id || req.user?._id?.toString() || ipKeyGenerator(req),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Analysis limit reached: maximum 5 analyses per 10 minutes. Please try again later.'
   }
 });
 
@@ -84,5 +100,6 @@ router.get('/history', protect, getResumeHistory);
 router.get('/:id', protect, getResumeById);
 router.delete('/:id', protect, deleteResume);
 router.post('/:id/rewrites', protect, checkRewriteCache, rewritesLimiter, getResumeRewrites);
+router.post('/:id/reanalyze', protect, reanalyzeLimiter, reanalyzeResume);
 
 module.exports = router;
