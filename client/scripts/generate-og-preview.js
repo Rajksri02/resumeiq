@@ -255,7 +255,7 @@ export function generateOGImage(outPath) {
   img.fillRoundedRect(140, 370, 270, 80, 12, 30, 41, 59, 255);
   img.fillRoundedRect(142, 372, 266, 76, 10, 15, 23, 42, 255);
   img.drawText("ATS AUDIT SCORE", 160, 390, 2, 52, 211, 153);
-  img.drawText("Verified 0-100 Benchmark", 160, 418, 2, 226, 232, 240);
+  img.drawText("Estimated 0-100 Score", 160, 418, 2, 226, 232, 240);
 
   // Pill 2: Keyword Tokenizer
   img.fillRoundedRect(440, 370, 290, 80, 12, 30, 41, 59, 255);
@@ -270,7 +270,7 @@ export function generateOGImage(outPath) {
   img.drawText("Suggested Bullet Edits", 780, 418, 2, 226, 232, 240);
 
   // 8. Footer metadata line
-  img.drawText("resumeiq-jade.vercel.app  |  Zero Uninvented Numbers  |  Human Privacy First", 140, 500, 2, 100, 116, 139);
+  img.drawText("resumeiq-jade.vercel.app", 140, 500, 2, 100, 116, 139);
 
   // Write file
   const pngBuffer = buildPNGFile(img);
