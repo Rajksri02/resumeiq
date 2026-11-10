@@ -26,6 +26,9 @@ const Analysis = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Header job description expansion state
+  const [showFullJobDesc, setShowFullJobDesc] = useState(false);
+
   // Re-analyze state
   const [showReanalyzeModal, setShowReanalyzeModal] = useState(false);
   const [reanalyzeJobDescription, setReanalyzeJobDescription] = useState('');
@@ -76,6 +79,7 @@ const Analysis = () => {
 
   const handleReanalyzeSubmit = async (e) => {
     if (e) e.preventDefault();
+    if (isReanalyzing) return;
     if (!reanalyzeJobDescription.trim()) {
       setReanalyzeError('Please provide a job description.');
       return;
@@ -123,6 +127,9 @@ const Analysis = () => {
       if (axios.isCancel(err) || err.name === 'CanceledError') {
         errorMsg = '> ERROR: TIMEOUT_EXCEEDED (65000ms)';
         toastMsg = 'Audit request timed out after 65s. The AI service may be busy.';
+      } else if (err.response?.status === 409) {
+        errorMsg = '> ERROR: [409] RE-ANALYSIS ALREADY IN PROGRESS';
+        toastMsg = err.response.data.message || 'Re-analysis is already in progress. Please wait.';
       } else if (!err.response) {
         errorMsg = '> ERROR: NETWORK_FAILURE - SERVER_UNREACHABLE';
         toastMsg = 'Could not reach server. Please check your network connection.';
@@ -167,6 +174,7 @@ const Analysis = () => {
   useEffect(() => {
     setShowReanalyzeModal(false);
     setIsReanalyzing(false);
+    setShowFullJobDesc(false);
     setReanalyzeError(null);
     setTerminalError(null);
     fetchAnalysis();
@@ -243,7 +251,7 @@ const Analysis = () => {
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <div className="pl-3 sm:pl-4 border-l border-slate-200 dark:border-slate-700">
+              <div className="pl-3 sm:pl-4 border-l border-slate-200 dark:border-slate-700 min-w-0">
                 <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate max-w-[130px] xs:max-w-[180px] sm:max-w-md md:max-w-lg lg:max-w-xl">
                   {analysis.fileName}
                 </h1>
@@ -252,6 +260,31 @@ const Analysis = () => {
                     year: 'numeric', month: '2-digit', day: '2-digit'
                   })}
                 </p>
+                {analysis.jobDescription?.trim() ? (
+                  <div className="text-[11px] sm:text-xs font-mono text-slate-600 dark:text-slate-300 mt-1 max-w-[180px] xs:max-w-[240px] sm:max-w-md md:max-w-lg lg:max-w-xl">
+                    <span className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">TARGET: </span>
+                    <span className={showFullJobDesc ? "block max-h-48 overflow-y-auto whitespace-pre-line bg-slate-50 dark:bg-slate-950/80 p-2 rounded-lg border border-slate-200 dark:border-slate-800 mt-1 text-slate-700 dark:text-slate-300" : ""}>
+                      {showFullJobDesc
+                        ? analysis.jobDescription.trim()
+                        : (analysis.jobDescription.trim().replace(/\s+/g, ' ').length > 80
+                            ? `${analysis.jobDescription.trim().replace(/\s+/g, ' ').slice(0, 80)}...`
+                            : analysis.jobDescription.trim())}
+                    </span>
+                    {analysis.jobDescription.trim().length > 80 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowFullJobDesc(!showFullJobDesc)}
+                        className="ml-1.5 text-emerald-600 dark:text-emerald-400 hover:underline font-bold inline-flex items-center"
+                      >
+                        {showFullJobDesc ? 'show less' : 'show full'}
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[11px] sm:text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+                    General analysis
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
@@ -583,10 +616,10 @@ const Analysis = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={!reanalyzeJobDescription.trim() || reanalyzeJobDescription.length > 10000}
+                    disabled={isReanalyzing || !reanalyzeJobDescription.trim() || reanalyzeJobDescription.length > 10000}
                     className="px-6 py-2.5 min-h-[44px] w-full sm:w-auto inline-flex items-center justify-center text-sm font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-xl shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 uppercase tracking-wider"
                   >
-                    Analyze
+                    {isReanalyzing ? 'Analyzing...' : 'Analyze'}
                   </button>
                 </div>
               </form>
