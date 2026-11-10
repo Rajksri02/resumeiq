@@ -198,6 +198,9 @@ const deleteResume = async (req, res) => {
 // Track in-flight rewrite generations to prevent duplicate concurrent runs
 const activeGenerations = new Set();
 
+// Track in-flight re-analyses to prevent duplicate concurrent runs for the same resume and user
+const activeReanalyses = new Set();
+
 // @desc    Generate or retrieve rewrite suggestions for a resume
 // @route   POST /api/resume/:id/rewrites
 // @access  Private
@@ -404,6 +407,18 @@ const reanalyzeResume = async (req, res, next) => {
     });
   }
 
+  // In-flight guard: prevent duplicate concurrent re-analyses for the same resume and user
+  const inFlightKey = `${req.user.id}:${resume._id.toString()}`;
+  if (activeReanalyses.has(inFlightKey)) {
+    return res.status(409).json({
+      success: false,
+      code: 'IN_PROGRESS',
+      message: 'Re-analysis is already in progress for this resume. Please wait.'
+    });
+  }
+
+  activeReanalyses.add(inFlightKey);
+
   try {
     // 4. Analyze with Gemini enforcing one overall deadline
     const TOTAL_TIMEOUT_MS = parseInt(process.env.GEMINI_TOTAL_TIMEOUT_MS || process.env.GEMINI_TIMEOUT_MS, 10) || 55000;
@@ -432,6 +447,8 @@ const reanalyzeResume = async (req, res, next) => {
       message,
       ...(process.env.NODE_ENV !== 'production' && error.stack ? { stack: error.stack } : {})
     });
+  } finally {
+    activeReanalyses.delete(inFlightKey);
   }
 };
 
