@@ -79,6 +79,27 @@ const Dashboard = () => {
     return 'text-rose-700 dark:text-red-400 bg-rose-50 dark:bg-red-500/10 border-rose-300 dark:border-red-500/30';
   };
 
+  // Determine if a resume is a re-analysis using existing history data
+  // (a resume is a re-analysis if an older resume with the same fileName exists)
+  const isReanalysis = (item) => {
+    if (!item?.fileName) return false;
+    return history.some(
+      (other) =>
+        other._id !== item._id &&
+        other.fileName === item.fileName &&
+        new Date(other.createdAt) < new Date(item.createdAt)
+    );
+  };
+
+  // First ~60 characters of stored jobDescription (or "General analysis" when empty)
+  const getJobDescPreview = (jobDesc) => {
+    if (!jobDesc || typeof jobDesc !== 'string' || !jobDesc.trim()) {
+      return 'General analysis';
+    }
+    const singleSpaced = jobDesc.trim().replace(/\s+/g, ' ');
+    return singleSpaced.length > 60 ? `${singleSpaced.slice(0, 60)}...` : singleSpaced;
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-700 dark:text-slate-300 transition-colors duration-200">
       {/* Navigation */}
@@ -198,11 +219,21 @@ const Dashboard = () => {
               >
                 <div className="p-6 flex-1">
                   <div className="flex items-start justify-between">
-                    <div className="min-w-0 pr-4">
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate" title={item.fileName}>
-                        {item.fileName}
-                      </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-mono tracking-widest">
+                    <div className="min-w-0 pr-4 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate" title={item.fileName}>
+                          {item.fileName}
+                        </h3>
+                        {isReanalysis(item) && (
+                          <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                            RE-ANALYSIS
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 font-mono line-clamp-2 leading-relaxed">
+                        {getJobDescPreview(item.jobDescription)}
+                      </p>
+                      <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-2 font-mono tracking-widest">
                         {new Date(item.createdAt).toLocaleDateString('en-US', { 
                           year: 'numeric', month: '2-digit', day: '2-digit' 
                         }).toUpperCase()}
