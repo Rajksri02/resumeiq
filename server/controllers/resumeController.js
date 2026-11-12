@@ -426,12 +426,15 @@ const reanalyzeResume = async (req, res, next) => {
     const analysisResult = await analyzeResumeText(resume.extractedText, jobDescription.trim(), false, { deadline });
 
     // 5. Save the result as a NEW Resume document (so history keeps both)
+    // Note: reanalyzedFrom is taken strictly from the owner-scoped lookup (resume._id)
+    // and is never accepted from req.body
     const newResume = new Resume({
       user: req.user.id,
       fileName: resume.fileName,
       extractedText: resume.extractedText,
       jobDescription: jobDescription.trim(),
-      analysis: analysisResult
+      analysis: analysisResult,
+      reanalyzedFrom: resume._id
     });
 
     const savedResume = await newResume.save();
