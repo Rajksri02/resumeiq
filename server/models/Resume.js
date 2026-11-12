@@ -17,6 +17,11 @@ const resumeSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  reanalyzedFrom: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Resume',
+    default: null,
+  },
   fileName: {
     type: String,
   },
