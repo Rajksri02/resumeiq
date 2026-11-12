@@ -79,18 +79,6 @@ const Dashboard = () => {
     return 'text-rose-700 dark:text-red-400 bg-rose-50 dark:bg-red-500/10 border-rose-300 dark:border-red-500/30';
   };
 
-  // Determine if a resume is a re-analysis using existing history data
-  // (a resume is a re-analysis if an older resume with the same fileName exists)
-  const isReanalysis = (item) => {
-    if (!item?.fileName) return false;
-    return history.some(
-      (other) =>
-        other._id !== item._id &&
-        other.fileName === item.fileName &&
-        new Date(other.createdAt) < new Date(item.createdAt)
-    );
-  };
-
   // First ~60 characters of stored jobDescription (or "General analysis" when empty)
   const getJobDescPreview = (jobDesc) => {
     if (!jobDesc || typeof jobDesc !== 'string' || !jobDesc.trim()) {
@@ -224,7 +212,7 @@ const Dashboard = () => {
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate" title={item.fileName}>
                           {item.fileName}
                         </h3>
-                        {isReanalysis(item) && (
+                        {Boolean(item.reanalyzedFrom) && (
                           <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                             RE-ANALYSIS
                           </span>
