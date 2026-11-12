@@ -255,36 +255,20 @@ const Analysis = () => {
                 <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate max-w-[130px] xs:max-w-[180px] sm:max-w-md md:max-w-lg lg:max-w-xl">
                   {analysis.fileName}
                 </h1>
-                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono font-bold uppercase tracking-wider mt-0.5">
-                  AUDITED: {new Date(analysis.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric', month: '2-digit', day: '2-digit'
-                  })}
-                </p>
-                {analysis.jobDescription?.trim() ? (
-                  <div className="text-[11px] sm:text-xs font-mono text-slate-600 dark:text-slate-300 mt-1 max-w-[180px] xs:max-w-[240px] sm:max-w-md md:max-w-lg lg:max-w-xl">
-                    <span className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">TARGET: </span>
-                    <span className={showFullJobDesc ? "block max-h-48 overflow-y-auto whitespace-pre-line bg-slate-50 dark:bg-slate-950/80 p-2 rounded-lg border border-slate-200 dark:border-slate-800 mt-1 text-slate-700 dark:text-slate-300" : ""}>
-                      {showFullJobDesc
-                        ? analysis.jobDescription.trim()
-                        : (analysis.jobDescription.trim().replace(/\s+/g, ' ').length > 80
-                            ? `${analysis.jobDescription.trim().replace(/\s+/g, ' ').slice(0, 80)}...`
-                            : analysis.jobDescription.trim())}
-                    </span>
-                    {analysis.jobDescription.trim().length > 80 && (
-                      <button
-                        type="button"
-                        onClick={() => setShowFullJobDesc(!showFullJobDesc)}
-                        className="ml-1.5 text-emerald-600 dark:text-emerald-400 hover:underline font-bold inline-flex items-center"
-                      >
-                        {showFullJobDesc ? 'show less' : 'show full'}
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-[11px] sm:text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
-                    General analysis
+                <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono font-bold uppercase tracking-wider">
+                    AUDITED: {new Date(analysis.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric', month: '2-digit', day: '2-digit'
+                    })}
                   </p>
-                )}
+                  <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 ${
+                    analysis.jobDescription?.trim()
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                  }`}>
+                    {analysis.jobDescription?.trim() ? 'Targeted' : 'General analysis'}
+                  </span>
+                </div>
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3">
@@ -329,6 +313,35 @@ const Analysis = () => {
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-6 leading-relaxed border-t border-slate-200 dark:border-slate-700 pt-4">
                 An AI estimate of how well your resume may parse and match a job. It is not a result from a real applicant tracking system.
               </p>
+              
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                {analysis.jobDescription?.trim() ? (
+                  <div className="text-xs font-mono text-slate-600 dark:text-slate-300">
+                    <span className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">TARGET: </span>
+                    <span className={showFullJobDesc ? "block max-h-48 overflow-y-auto whitespace-pre-line bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 mt-2 text-slate-700 dark:text-slate-300" : ""}>
+                      {showFullJobDesc
+                        ? analysis.jobDescription.trim()
+                        : (analysis.jobDescription.trim().replace(/\s+/g, ' ').length > 80
+                            ? `${analysis.jobDescription.trim().replace(/\s+/g, ' ').slice(0, 80)}...`
+                            : analysis.jobDescription.trim())}
+                    </span>
+                    {analysis.jobDescription.trim().length > 80 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowFullJobDesc(!showFullJobDesc)}
+                        className="ml-1.5 text-emerald-600 dark:text-emerald-400 hover:underline font-bold inline-flex items-center"
+                      >
+                        {showFullJobDesc ? 'show less' : 'show full'}
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                    General analysis
+                  </p>
+                )}
+              </div>
+
               <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <button
                   type="button"
@@ -343,15 +356,6 @@ const Analysis = () => {
                 </button>
               </div>
             </div>
-
-            {analysis.jobDescription && (
-              <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl transition-all">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3 pb-3 border-b border-slate-200 dark:border-slate-700">Target Role</h2>
-                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-4 font-mono leading-relaxed bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                  {analysis.jobDescription}
-                </p>
-              </div>
-            )}
 
             {hasSkillsData && (
               <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl transition-all">
