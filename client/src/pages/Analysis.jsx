@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Check, AlertTriangle, ArrowLeft, Trash2, RefreshCw, X } from 'lucide-react';
+import { Check, AlertTriangle, ArrowLeft, Trash2, RefreshCw, X, Printer } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ScoreGauge from '../components/ScoreGauge';
 import SkillBadge from '../components/SkillBadge';
@@ -239,39 +239,50 @@ const Analysis = () => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-700 dark:text-slate-300 pb-16 transition-colors duration-200">
       {/* Header */}
-      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+      <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors print:static print:border-b-2 print:border-slate-300 print:bg-white print:py-4 print:mb-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 print:p-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 print:hidden"
                 title="Back to dashboard"
                 aria-label="Back to dashboard"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <div className="pl-3 sm:pl-4 border-l border-slate-200 dark:border-slate-700 min-w-0">
-                <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate max-w-[130px] xs:max-w-[180px] sm:max-w-md md:max-w-lg lg:max-w-xl">
+              <div className="pl-3 sm:pl-4 border-l border-slate-200 dark:border-slate-700 min-w-0 print:border-l-0 print:pl-0">
+                <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate max-w-[130px] xs:max-w-[180px] sm:max-w-md md:max-w-lg lg:max-w-xl print:max-w-none print:text-2xl print:text-slate-950">
                   {analysis.fileName}
                 </h1>
                 <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono font-bold uppercase tracking-wider">
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-mono font-bold uppercase tracking-wider print:text-slate-600">
                     AUDITED: {new Date(analysis.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric', month: '2-digit', day: '2-digit'
                     })}
                   </p>
                   <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border shrink-0 ${
                     analysis.jobDescription?.trim()
-                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 print:bg-emerald-50 print:text-emerald-800 print:border-emerald-300'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 print:bg-slate-100 print:text-slate-700 print:border-slate-300'
                   }`}>
                     {analysis.jobDescription?.trim() ? 'Targeted' : 'General analysis'}
                   </span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3 print:hidden">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center justify-center px-3 sm:px-3.5 py-2 min-h-[44px] text-xs sm:text-sm font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 font-mono tracking-wider"
+                title="Save as PDF / Print report"
+                aria-label="Save as PDF"
+              >
+                <Printer className="w-4 h-4 sm:mr-2 shrink-0" />
+                <span className="hidden md:inline">Save as PDF</span>
+                <span className="md:hidden">PDF</span>
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -299,50 +310,53 @@ const Analysis = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 print:p-0 print:py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 print:block print:space-y-6">
           
           {/* Left Rail: Hero Score */}
-          <div className="lg:col-span-4 space-y-8">
-            <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md p-6 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-700 pb-4 flex items-center space-x-2">
+          <div className="lg:col-span-4 space-y-8 print:space-y-4 print:mb-6">
+            <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md p-6 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-5">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-700 pb-4 flex items-center space-x-2 print:border-slate-200 print:mb-4 print:pb-3">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>Audit Result</span>
+                <span className="print:text-slate-950">Audit Result</span>
               </h2>
               <ScoreGauge score={result.atsScore} />
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-6 leading-relaxed border-t border-slate-200 dark:border-slate-700 pt-4">
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-6 leading-relaxed border-t border-slate-200 dark:border-slate-700 pt-4 print:border-slate-200 print:mt-4 print:pt-3 print:text-slate-700">
                 An AI estimate of how well your resume may parse and match a job. It is not a result from a real applicant tracking system.
               </p>
               
-              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 print:border-slate-200 print:mt-4 print:pt-3">
                 {analysis.jobDescription?.trim() ? (
                   <div className="text-xs font-mono text-slate-600 dark:text-slate-300">
-                    <span className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">TARGET: </span>
-                    <span className={showFullJobDesc ? "block max-h-48 overflow-y-auto whitespace-pre-line bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 mt-2 text-slate-700 dark:text-slate-300" : ""}>
+                    <span className="font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider print:text-slate-700">TARGET: </span>
+                    <span className={showFullJobDesc ? "block max-h-48 overflow-y-auto whitespace-pre-line bg-slate-50 dark:bg-slate-950/80 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 mt-2 text-slate-700 dark:text-slate-300 print:hidden" : "print:hidden"}>
                       {showFullJobDesc
                         ? analysis.jobDescription.trim()
                         : (analysis.jobDescription.trim().replace(/\s+/g, ' ').length > 80
                             ? `${analysis.jobDescription.trim().replace(/\s+/g, ' ').slice(0, 80)}...`
                             : analysis.jobDescription.trim())}
                     </span>
+                    <span className="hidden print:block whitespace-pre-line text-slate-800 mt-1 font-sans text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                      {analysis.jobDescription.trim()}
+                    </span>
                     {analysis.jobDescription.trim().length > 80 && (
                       <button
                         type="button"
                         onClick={() => setShowFullJobDesc(!showFullJobDesc)}
-                        className="ml-1.5 text-emerald-600 dark:text-emerald-400 hover:underline font-bold inline-flex items-center"
+                        className="ml-1.5 text-emerald-600 dark:text-emerald-400 hover:underline font-bold inline-flex items-center print:hidden"
                       >
                         {showFullJobDesc ? 'show less' : 'show full'}
                       </button>
                     )}
                   </div>
                 ) : (
-                  <p className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                  <p className="text-xs font-mono text-slate-500 dark:text-slate-400 print:text-slate-600">
                     General analysis
                   </p>
                 )}
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-col gap-2.5 print:hidden">
                 <button
                   type="button"
                   onClick={() => {
@@ -354,12 +368,20 @@ const Analysis = () => {
                   <RefreshCw className="w-4 h-4 mr-2 shrink-0" />
                   <span>Analyze for a different job</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="w-full inline-flex items-center justify-center px-4 py-3 min-h-[44px] text-sm font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 font-mono tracking-wider"
+                >
+                  <Printer className="w-4 h-4 mr-2 shrink-0" />
+                  <span>Save as PDF</span>
+                </button>
               </div>
             </div>
 
             {hasSkillsData && (
-              <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl transition-all">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-5 pb-3 border-b border-slate-200 dark:border-slate-700">Keyword Extraction</h2>
+              <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-5">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-5 pb-3 border-b border-slate-200 dark:border-slate-700 print:border-slate-200 print:mb-3 print:pb-2 print:text-slate-950">Keyword Extraction</h2>
                 
                 {result.matchedSkills?.length > 0 && (
                   <div className="mb-8">
@@ -391,44 +413,44 @@ const Analysis = () => {
           </div>
 
           {/* Right Rail: Detailed Breakdown */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-8 print:space-y-6">
             
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl border-t-4 border-t-emerald-500 transition-all">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Executive Summary</h2>
-              <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans">
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl border-t-4 border-t-emerald-500 transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-6">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 print:text-slate-950">Executive Summary</h2>
+              <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans print:text-slate-900">
                 {result.overallSummary}
               </p>
             </div>
             
             {/* Strengths & Weaknesses */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white dark:bg-slate-800 shadow-sm border border-emerald-300 dark:border-emerald-500/30 p-5 sm:p-6 rounded-2xl transition-all">
-                <div className="flex items-center mb-6 pb-3 border-b border-emerald-100 dark:border-emerald-500/10">
-                  <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400">Structural Strengths</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-4 print:break-inside-avoid">
+              <div className="bg-white dark:bg-slate-800 shadow-sm border border-emerald-300 dark:border-emerald-500/30 p-5 sm:p-6 rounded-2xl transition-all break-inside-avoid print:border-emerald-400 print:bg-white print:shadow-none print:p-5">
+                <div className="flex items-center mb-6 pb-3 border-b border-emerald-100 dark:border-emerald-500/10 print:border-emerald-200 print:mb-4 print:pb-2">
+                  <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400 print:text-emerald-800">Structural Strengths</h2>
                 </div>
-                <ul className="space-y-4">
+                <ul className="space-y-4 print:space-y-2.5">
                   {result.strengths?.map((strength, i) => (
                     <li key={i} className="flex items-start">
-                      <div className="flex-shrink-0 mt-0.5 bg-emerald-50 dark:bg-emerald-500/10 p-1 mr-3 rounded-md">
-                        <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
+                      <div className="flex-shrink-0 mt-0.5 bg-emerald-50 dark:bg-emerald-500/10 p-1 mr-3 rounded-md print:bg-emerald-50">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 stroke-[3] print:text-emerald-700" />
                       </div>
-                      <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{strength}</span>
+                      <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed print:text-slate-900">{strength}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="bg-white dark:bg-slate-800 shadow-sm border border-amber-300 dark:border-amber-500/30 p-5 sm:p-6 rounded-2xl transition-all">
-                <div className="flex items-center mb-6 pb-3 border-b border-amber-100 dark:border-amber-500/10">
-                  <h2 className="text-lg font-bold text-amber-700 dark:text-amber-400">Critical Issues</h2>
+              <div className="bg-white dark:bg-slate-800 shadow-sm border border-amber-300 dark:border-amber-500/30 p-5 sm:p-6 rounded-2xl transition-all break-inside-avoid print:border-amber-300 print:bg-white print:shadow-none print:p-5">
+                <div className="flex items-center mb-6 pb-3 border-b border-amber-100 dark:border-amber-500/10 print:border-amber-200 print:mb-4 print:pb-2">
+                  <h2 className="text-lg font-bold text-amber-700 dark:text-amber-400 print:text-amber-800">Critical Issues</h2>
                 </div>
-                <ul className="space-y-4">
+                <ul className="space-y-4 print:space-y-2.5">
                   {result.weaknesses?.map((weakness, i) => (
                     <li key={i} className="flex items-start">
-                      <div className="flex-shrink-0 mt-0.5 bg-amber-50 dark:bg-amber-500/10 p-1 mr-3 rounded-md">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 stroke-[3]" />
+                      <div className="flex-shrink-0 mt-0.5 bg-amber-50 dark:bg-amber-500/10 p-1 mr-3 rounded-md print:bg-amber-50">
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 stroke-[3] print:text-amber-700" />
                       </div>
-                      <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{weakness}</span>
+                      <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed print:text-slate-900">{weakness}</span>
                     </li>
                   ))}
                 </ul>
@@ -436,16 +458,16 @@ const Analysis = () => {
             </div>
 
             {/* Actionable Suggestions */}
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">Remediation Plan</h2>
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-6">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-200 dark:border-slate-700 print:border-slate-200 print:mb-4 print:pb-2 print:text-slate-950">Remediation Plan</h2>
               <div className="pl-2">
-                <ol className="space-y-5">
+                <ol className="space-y-5 print:space-y-3">
                   {result.suggestions?.map((suggestion, i) => (
                     <li key={i} className="flex items-start font-sans">
-                      <span className="flex-shrink-0 text-sm font-mono font-black text-slate-400 dark:text-slate-500 w-8 pt-0.5">
+                      <span className="flex-shrink-0 text-sm font-mono font-black text-slate-400 dark:text-slate-500 w-8 pt-0.5 print:text-slate-600">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <span className="text-slate-700 dark:text-slate-300 text-base leading-relaxed">{suggestion}</span>
+                      <span className="text-slate-700 dark:text-slate-300 text-base leading-relaxed print:text-slate-900">{suggestion}</span>
                     </li>
                   ))}
                 </ol>
@@ -453,8 +475,8 @@ const Analysis = () => {
             </div>
 
             {/* Section Feedback */}
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">Section Audit</h2>
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-6">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-200 dark:border-slate-700 print:border-slate-200 print:mb-4 print:pb-2 print:text-slate-950">Section Audit</h2>
               <div className="space-y-3">
                 {result.sectionFeedback && Object.entries(result.sectionFeedback).map(([section, feedback]) => (
                   <FeedbackAccordion key={section} section={section} feedback={feedback} />
@@ -486,7 +508,7 @@ const Analysis = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 print:hidden">
           <div className="bg-white dark:bg-slate-900 max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-700 rounded-2xl transition-all">
             <div className="mb-6">
               <h3 className="text-2xl font-bold text-rose-600 dark:text-red-500 mb-2">Discard Audit?</h3>
@@ -516,7 +538,7 @@ const Analysis = () => {
 
       {/* Re-analyze Modal & Terminal Loading State */}
       {showReanalyzeModal && (
-        <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 z-50 print:hidden">
           {isReanalyzing ? (
             /* Terminal-style loading state */
             <div className="w-full max-w-2xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden rounded-2xl animate-in fade-in">
