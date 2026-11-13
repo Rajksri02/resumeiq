@@ -310,7 +310,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
 
         {/* Global Action Buttons */}
         {isGenerated && !isGenerating && (
-          <div className="flex flex-wrap items-center gap-3 self-start sm:self-center">
+          <div className="flex flex-wrap items-center gap-3 self-start sm:self-center print:hidden">
             {hasRewrites && (
               <button
                 type="button"
@@ -442,7 +442,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
           <button
             type="button"
             onClick={() => handleGenerate(false)}
-            className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-3 min-h-[44px] font-mono font-bold text-sm tracking-wider uppercase rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900"
+            className="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-3 min-h-[44px] font-mono font-bold text-sm tracking-wider uppercase rounded-xl transition-all shadow-lg hover:shadow-emerald-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-900 print:hidden"
           >
             <Sparkles className="w-4 h-4" />
             <span>GENERATE REWRITES</span>
@@ -501,15 +501,15 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
             {rewrites.map((item, idx) => (
               <div 
                 key={idx}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-600"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-600 break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-4"
               >
                 {/* Card Top: Section Tag & Copy Button */}
-                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/80 mb-4">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800/80 mb-4 print:pb-2 print:mb-3">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/90 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/90 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 print:bg-slate-50 print:border-slate-300 print:text-slate-800">
                       {item.section || 'SECTION'}
                     </span>
-                    <span className="text-xs font-mono text-slate-400 dark:text-slate-500 font-semibold">
+                    <span className="text-xs font-mono text-slate-400 dark:text-slate-500 font-semibold print:text-slate-600">
                       #{idx + 1}
                     </span>
                   </div>
@@ -517,7 +517,7 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
                   <button
                     type="button"
                     onClick={() => handleCopySingle(item.improved, idx)}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 min-h-[44px] min-w-[44px] justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 min-h-[44px] min-w-[44px] justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-mono font-bold rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 print:hidden"
                     title="Copy improved bullet to clipboard"
                     aria-label={`Copy improved bullet ${idx + 1} to clipboard`}
                   >
@@ -536,29 +536,29 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
                 </div>
 
                 {/* BEFORE & AFTER BLOCKS */}
-                <div className="space-y-4">
+                <div className="space-y-4 print:space-y-2">
                   {/* BEFORE Block */}
-                  <div className="bg-amber-50/60 dark:bg-slate-950/70 border border-amber-200 dark:border-slate-800/90 rounded-xl p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="text-[11px] font-mono font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-500/20">
+                  <div className="bg-amber-50/60 dark:bg-slate-950/70 border border-amber-200 dark:border-slate-800/90 rounded-xl p-4 print:bg-amber-50 print:border-amber-300 print:p-3">
+                    <div className="flex items-center space-x-2 mb-2 print:mb-1">
+                      <span className="text-[11px] font-mono font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest bg-amber-100 dark:bg-amber-500/10 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-500/20 print:bg-amber-100 print:text-amber-800 print:border-amber-300">
                         [BEFORE]
                       </span>
-                      <span className="text-xs text-slate-500 font-mono">Original Resume Bullet</span>
+                      <span className="text-xs text-slate-500 font-mono print:text-slate-600">Original Resume Bullet</span>
                     </div>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 font-sans leading-relaxed break-words">
+                    <p className="text-sm text-slate-700 dark:text-slate-300 print:text-slate-900 font-sans leading-relaxed break-words">
                       {item.original}
                     </p>
                   </div>
 
                   {/* AFTER Block */}
-                  <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-500/30 rounded-xl p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest bg-emerald-100 dark:bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-500/30">
+                  <div className="bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-500/30 rounded-xl p-4 print:bg-emerald-50 print:border-emerald-400 print:p-3">
+                    <div className="flex items-center space-x-2 mb-2 print:mb-1">
+                      <span className="text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest bg-emerald-100 dark:bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-500/30 print:bg-emerald-100 print:text-emerald-800 print:border-emerald-400">
                         [AFTER]
                       </span>
-                      <span className="text-xs text-emerald-700/80 dark:text-emerald-400/80 font-mono">Improved Technical Bullet</span>
+                      <span className="text-xs text-emerald-700/80 dark:text-emerald-400/80 font-mono print:text-emerald-800">Improved Technical Bullet</span>
                     </div>
-                    <p className="text-sm text-slate-900 dark:text-white font-sans font-medium leading-relaxed break-words">
+                    <p className="text-sm text-slate-900 dark:text-white print:text-slate-950 font-sans font-medium leading-relaxed break-words">
                       {item.improved}
                     </p>
                   </div>
@@ -566,11 +566,11 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
 
                 {/* Single-line Structural Reason */}
                 {item.reason && (
-                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-start space-x-2">
-                    <span className="text-xs font-mono text-slate-500 dark:text-slate-400 flex-shrink-0 font-bold uppercase tracking-wider">
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-start space-x-2 print:mt-2 print:pt-2 print:border-slate-200">
+                    <span className="text-xs font-mono text-slate-500 dark:text-slate-400 flex-shrink-0 font-bold uppercase tracking-wider print:text-slate-700">
                       REASON:
                     </span>
-                    <span className="text-xs text-slate-600 dark:text-slate-300 font-sans leading-relaxed break-words">
+                    <span className="text-xs text-slate-600 dark:text-slate-300 print:text-slate-800 font-sans leading-relaxed break-words">
                       {item.reason.trim().endsWith('.') ? item.reason.trim() : `${item.reason.trim()}.`}
                     </span>
                   </div>
@@ -600,25 +600,25 @@ const RewriteSuggestions = ({ resumeId, initialData, onUpdate, isDemo = false })
             {metricPrompts.map((mp, i) => (
               <div 
                 key={i}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 p-5 rounded-2xl space-y-3 shadow-sm"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/70 p-5 rounded-2xl space-y-3 shadow-sm break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                  <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 print:bg-slate-50 print:border-slate-300 print:text-slate-800">
                     {mp.section || 'PROJECTS'}
                   </span>
-                  <span className="text-xs font-mono text-slate-400 dark:text-slate-500 font-semibold">
+                  <span className="text-xs font-mono text-slate-400 dark:text-slate-500 font-semibold print:text-slate-600">
                     PROMPT #{i + 1}
                   </span>
                 </div>
 
                 {/* Original Bullet Context */}
-                <div className="text-xs text-slate-600 dark:text-slate-400 font-sans bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800/80">
+                <div className="text-xs text-slate-600 dark:text-slate-400 font-sans bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800/80 print:bg-slate-50 print:border-slate-200 print:text-slate-700">
                   <span className="font-mono text-slate-500 font-bold mr-2 uppercase">[CONTEXT]</span>
                   {mp.original}
                 </div>
 
                 {/* Prompt with Monospace Bracket Highlights */}
-                <div className="text-sm text-slate-800 dark:text-slate-200 font-sans leading-relaxed pl-2 border-l-2 border-emerald-500">
+                <div className="text-sm text-slate-800 dark:text-slate-200 font-sans leading-relaxed pl-2 border-l-2 border-emerald-500 print:text-slate-900">
                   {renderPromptWithHighlights(mp.prompt)}
                 </div>
               </div>

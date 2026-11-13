@@ -51,9 +51,9 @@ const ScoreGauge = ({ score }) => {
   }
 
   return (
-    <div className={`relative w-full border-2 ${borderClass} ${bgClass} flex flex-col p-6 transition-all duration-300 rounded-2xl overflow-hidden shadow-sm`}>
+    <div className={`relative w-full border-2 ${borderClass} ${bgClass} flex flex-col p-6 transition-all duration-300 rounded-2xl overflow-hidden shadow-sm break-inside-avoid print:bg-white print:border-2 print:border-slate-300 print:shadow-none`}>
       {/* Barcode-like visual at the top */}
-      <div className="flex space-x-1 mb-6 opacity-40">
+      <div className="flex space-x-1 mb-6 opacity-40 print:hidden">
         {[...Array(12)].map((_, i) => (
           <div key={i} className={`h-2 ${i % 3 === 0 ? 'w-2' : 'w-1'} ${barColor} rounded-xs`}></div>
         ))}
@@ -61,22 +61,23 @@ const ScoreGauge = ({ score }) => {
       
       <div className="flex items-end justify-between flex-wrap gap-2">
         <div className="flex flex-col">
-          <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-1 print:text-slate-600">
             VERIFIED_SCORE
           </span>
           <div className="flex items-baseline space-x-2">
-            <span className={`text-6xl sm:text-7xl font-mono font-bold leading-none ${colorClass} transition-colors duration-500`}>
-              {displayScore}
+            <span className={`text-6xl sm:text-7xl font-mono font-bold leading-none ${colorClass} transition-colors duration-500 print:text-slate-950`}>
+              <span className="print:hidden">{displayScore}</span>
+              <span className="hidden print:inline">{score ?? displayScore}</span>
             </span>
-            <span className="text-lg font-mono font-bold text-slate-400 dark:text-slate-500">
+            <span className="text-lg font-mono font-bold text-slate-400 dark:text-slate-500 print:text-slate-600">
               / 100
             </span>
           </div>
         </div>
         <div className="flex flex-col items-end shrink-0">
-          <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 tracking-widest mb-1">AUDIT_STATUS</span>
-          <span className={`text-xs sm:text-sm font-mono font-bold tracking-wider px-2.5 py-1 border ${borderClass} ${colorClass} bg-white/90 dark:bg-slate-950/60 rounded-lg shadow-xs`}>
-            {isFinished ? (score >= 75 ? 'STRONG' : score >= 50 ? 'FAIR' : 'NEEDS WORK') : 'CALCULATING'}
+          <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 tracking-widest mb-1 print:text-slate-600">AUDIT_STATUS</span>
+          <span className={`text-xs sm:text-sm font-mono font-bold tracking-wider px-2.5 py-1 border ${borderClass} ${colorClass} bg-white/90 dark:bg-slate-950/60 rounded-lg shadow-xs print:bg-slate-50 print:border-slate-300 print:text-slate-900`}>
+            {score >= 75 ? 'STRONG' : score >= 50 ? 'FAIR' : 'NEEDS WORK'}
           </span>
         </div>
       </div>
