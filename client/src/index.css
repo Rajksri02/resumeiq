@@ -32,3 +32,147 @@
     @apply bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-300 antialiased transition-colors duration-200;
   }
 }
+
+/* Print Styles */
+@media print {
+  @page {
+    margin: 1.2cm;
+    size: auto;
+  }
+
+  :root, html, body, #root {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important; /* slate-900 */
+    color-scheme: light !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide navigation, buttons, toasts, modals, and screen-only controls */
+  nav,
+  aside,
+  button:not(.print-preserve),
+  input[type="button"],
+  input[type="submit"],
+  .no-print,
+  [data-toaster],
+  .toaster,
+  div[role="status"],
+  div[role="alert"],
+  div[aria-live],
+  .modal-backdrop,
+  [role="dialog"],
+  .fixed[class*="backdrop-blur"],
+  .fixed.inset-0 {
+    display: none !important;
+  }
+
+  /* Neutralize fixed/sticky headers in print */
+  .sticky,
+  .fixed {
+    position: static !important;
+  }
+
+  /* Dark mode overrides: force white background and dark text */
+  .dark,
+  .dark body,
+  .dark div,
+  .dark main,
+  .dark section,
+  .dark article,
+  .dark nav {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  .dark .bg-slate-800,
+  .dark .bg-slate-850,
+  .dark .bg-slate-900,
+  .dark .bg-slate-950,
+  .dark [class*="dark:bg-slate-800"],
+  .dark [class*="dark:bg-slate-900"],
+  .dark [class*="dark:bg-slate-950"] {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important; /* slate-300 */
+    color: #0f172a !important;
+  }
+
+  .dark .text-white,
+  .dark .text-slate-100,
+  .dark .text-slate-200,
+  .dark .text-slate-300,
+  .dark [class*="dark:text-white"],
+  .dark [class*="dark:text-slate-100"],
+  .dark [class*="dark:text-slate-200"],
+  .dark [class*="dark:text-slate-300"] {
+    color: #0f172a !important;
+  }
+
+  .dark .text-slate-400,
+  .dark .text-slate-500,
+  .dark [class*="dark:text-slate-400"],
+  .dark [class*="dark:text-slate-500"] {
+    color: #334155 !important; /* slate-700 */
+  }
+
+  /* High contrast headings and typography */
+  h1, h2, h3, h4, h5, h6 {
+    color: #0f172a !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  p, span, li, dt, dd {
+    color: #1e293b !important;
+  }
+
+  /* Avoid page breaks inside cards, sections, accordion rows, and rewrites */
+  .break-inside-avoid,
+  .card,
+  article,
+  section,
+  [class*="rounded-2xl"],
+  [class*="rounded-xl"],
+  .feedback-accordion,
+  .rewrite-card,
+  li {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Clean up links for paper/PDF */
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+
+  a[href]::after {
+    content: none !important;
+  }
+
+  /* Ensure card backgrounds and borders have clear print contrast */
+  .bg-amber-50,
+  [class*="bg-amber-50"] {
+    background-color: #fffbeb !important;
+    border-color: #fcd34d !important;
+  }
+
+  .bg-emerald-50,
+  [class*="bg-emerald-50"] {
+    background-color: #ecfdf5 !important;
+    border-color: #6ee7b7 !important;
+  }
+
+  .bg-slate-50,
+  .bg-slate-100 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  /* Remove drop shadows to avoid fuzzy pixelation in PDF export */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+}
