@@ -8,7 +8,7 @@ const FeedbackAccordion = ({ section, feedback }) => {
   const displayFeedback = isString ? feedback : 'No feedback available.';
 
   return (
-    <div className="border border-slate-200 dark:border-slate-700/80 rounded-2xl overflow-hidden mb-3 bg-white dark:bg-slate-900 shadow-sm transition-colors break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none">
+    <div className="feedback-accordion border border-slate-200 dark:border-slate-700/80 rounded-2xl overflow-hidden mb-3 bg-white dark:bg-slate-900 shadow-sm transition-colors break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-5 bg-slate-50/80 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-750 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-500 print-preserve print:bg-slate-50 print:pointer-events-none"
