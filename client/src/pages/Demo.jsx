@@ -175,34 +175,24 @@ const Demo = () => {
           
           {/* Left Rail: Hero Score & Skills */}
           <div className="lg:col-span-4 space-y-8 print:space-y-4 print:mb-6">
-            <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md p-6 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-5">
+            <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md p-6 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all print:border-slate-300 print:bg-white print:shadow-none print:p-5">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-700 pb-4 flex items-center space-x-2 print:border-slate-200 print:mb-4 print:pb-3">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span className="print:text-slate-950">Audit Result</span>
               </h2>
-              <ScoreGauge score={result.atsScore} />
+              <ScoreGauge score={analysis.atsScore ?? result.atsScore} />
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-6 leading-relaxed border-t border-slate-200 dark:border-slate-700 pt-4 print:border-slate-200 print:mt-4 print:pt-3 print:text-slate-700">
                 An AI estimate of how well your resume may parse and match a job. It is not a result from a real applicant tracking system.
               </p>
-              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 print:hidden">
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="w-full inline-flex items-center justify-center px-4 py-3 min-h-[44px] text-sm font-bold bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 font-mono tracking-wider"
-                >
-                  <Printer className="w-4 h-4 mr-2 shrink-0" />
-                  <span>Save as PDF</span>
-                </button>
-              </div>
             </div>
 
             {hasSkillsData && (
-              <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-5">
+              <div className="bg-white dark:bg-slate-800 shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-700 p-6 rounded-2xl transition-all print:border-slate-300 print:bg-white print:shadow-none print:p-5">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-5 pb-3 border-b border-slate-200 dark:border-slate-700 print:border-slate-200 print:mb-3 print:pb-2 print:text-slate-950">Keyword Extraction</h2>
                 
                 {result.matchedSkills?.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-3 flex items-center">
+                    <h3 className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-3 flex items-center print:text-emerald-700">
                       <Check className="w-3 h-3 mr-1 stroke-[3]" /> VERIFIED_TOKENS
                     </h3>
                     <div className="flex flex-wrap gap-2">
@@ -215,7 +205,7 @@ const Demo = () => {
                 
                 {result.missingSkills?.length > 0 && (
                   <div>
-                    <h3 className="text-xs font-mono font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-3 flex items-center">
+                    <h3 className="text-xs font-mono font-bold text-amber-600 dark:text-amber-500 uppercase tracking-widest mb-3 flex items-center print:text-amber-700">
                       <AlertTriangle className="w-3 h-3 mr-1 stroke-[2.5]" /> MISSING_TOKENS
                     </h3>
                     <div className="flex flex-wrap gap-2">
@@ -243,7 +233,7 @@ const Demo = () => {
           {/* Right Rail: Detailed Breakdown */}
           <div className="lg:col-span-8 space-y-8 print:space-y-6">
             
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl border-t-4 border-t-emerald-500 transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-6">
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl border-t-4 border-t-emerald-500 transition-all print:border-slate-300 print:bg-white print:shadow-none print:p-6">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 print:text-slate-950">Executive Summary</h2>
               <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans print:text-slate-900">
                 {result.overallSummary}
@@ -251,8 +241,8 @@ const Demo = () => {
             </div>
             
             {/* Strengths & Weaknesses */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-4 print:break-inside-avoid">
-              <div className="bg-white dark:bg-slate-800 shadow-sm border border-emerald-300 dark:border-emerald-500/30 p-5 sm:p-6 rounded-2xl transition-all break-inside-avoid print:border-emerald-400 print:bg-white print:shadow-none print:p-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:grid-cols-2 print:gap-4">
+              <div className="bg-white dark:bg-slate-800 shadow-sm border border-emerald-300 dark:border-emerald-500/30 p-5 sm:p-6 rounded-2xl transition-all print:border-emerald-400 print:bg-white print:shadow-none print:p-5">
                 <div className="flex items-center mb-6 pb-3 border-b border-emerald-100 dark:border-emerald-500/10 print:border-emerald-200 print:mb-4 print:pb-2">
                   <h2 className="text-lg font-bold text-emerald-700 dark:text-emerald-400 print:text-emerald-800">Structural Strengths</h2>
                 </div>
@@ -268,7 +258,7 @@ const Demo = () => {
                 </ul>
               </div>
 
-              <div className="bg-white dark:bg-slate-800 shadow-sm border border-amber-300 dark:border-amber-500/30 p-5 sm:p-6 rounded-2xl transition-all break-inside-avoid print:border-amber-300 print:bg-white print:shadow-none print:p-5">
+              <div className="bg-white dark:bg-slate-800 shadow-sm border border-amber-300 dark:border-amber-500/30 p-5 sm:p-6 rounded-2xl transition-all print:border-amber-300 print:bg-white print:shadow-none print:p-5">
                 <div className="flex items-center mb-6 pb-3 border-b border-amber-100 dark:border-amber-500/10 print:border-amber-200 print:mb-4 print:pb-2">
                   <h2 className="text-lg font-bold text-amber-700 dark:text-amber-400 print:text-amber-800">Critical Issues</h2>
                 </div>
@@ -286,7 +276,7 @@ const Demo = () => {
             </div>
 
             {/* Actionable Suggestions */}
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-6">
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all print:border-slate-300 print:bg-white print:shadow-none print:p-6">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-200 dark:border-slate-700 print:border-slate-200 print:mb-4 print:pb-2 print:text-slate-950">Remediation Plan</h2>
               <div className="pl-2">
                 <ol className="space-y-5 print:space-y-3">
@@ -303,7 +293,7 @@ const Demo = () => {
             </div>
 
             {/* Section Feedback */}
-            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all break-inside-avoid print:border-slate-300 print:bg-white print:shadow-none print:p-6">
+            <div className="bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-8 rounded-2xl transition-all print:border-slate-300 print:bg-white print:shadow-none print:p-6">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 pb-4 border-b border-slate-200 dark:border-slate-700 print:border-slate-200 print:mb-4 print:pb-2 print:text-slate-950">Section Audit</h2>
               <div className="space-y-3">
                 {result.sectionFeedback && Object.entries(result.sectionFeedback).map(([section, feedback]) => (
@@ -325,11 +315,16 @@ const Demo = () => {
               isDemo={true}
             />
 
+            {/* Print-only report footer */}
+            <footer className="hidden print:block mt-8 pt-4 border-t border-slate-300 text-center text-xs font-mono text-slate-500">
+              Generated by ResumeIQ on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}. AI-generated estimate, not a result from a real applicant tracking system. Review every suggestion for accuracy before using it.
+            </footer>
+
           </div>
         </div>
 
         {/* Bottom CTA Section with Sign-Up Button */}
-        <section aria-labelledby="cta-heading" className="mt-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-12 shadow-xl text-center max-w-4xl mx-auto transition-all relative overflow-hidden">
+        <section aria-labelledby="cta-heading" className="mt-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-12 shadow-xl text-center max-w-4xl mx-auto transition-all relative overflow-hidden print:hidden">
           <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600"></div>
           
           <div className="mx-auto flex h-16 w-16 items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl mb-6 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
